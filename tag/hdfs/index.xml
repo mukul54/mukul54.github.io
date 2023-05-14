@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HDFS | Mukul&#39;s Blog</title>
+    <link>https://mukul54.github.io/tag/hdfs/</link>
+      <atom:link href="https://mukul54.github.io/tag/hdfs/index.xml" rel="self" type="application/rss+xml" />
+    <description>HDFS</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sun, 14 May 2023 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://mukul54.github.io/media/icon_hu090309fb434628b5bc5d7c09ca55ab4a_11217_512x512_fill_lanczos_center_3.png</url>
+      <title>HDFS</title>
+      <link>https://mukul54.github.io/tag/hdfs/</link>
+    </image>
+    
+    <item>
+      <title>Understanding HDFS Architecture</title>
+      <link>https://mukul54.github.io/post/hdfs/</link>
+      <pubDate>Sun, 14 May 2023 00:00:00 +0000</pubDate>
+      <guid>https://mukul54.github.io/post/hdfs/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Hadoop Distributed File System(HDFS)&lt;/strong&gt; is a distributed file system designed for handling and storing very large files running on clusters of commodity hardware. It is highly fault tolerant, designed to be deployed on low-cost, commodity hardware and It provides a very high throughput by providing parallel data access.&lt;/p&gt;
+&lt;p&gt;HDFS instance may consists of hundreds of server machines each storing part of file system data, hence failure of at least one server is inevitable. HDFS has been built to detect these failures and automatically recover them quickly.&lt;/p&gt;
+&lt;p&gt;HDFS follows master/slave architecture with **NameNode **as master and **DataNode **as slave. Each cluster comprises a &lt;strong&gt;single master node&lt;/strong&gt; and &lt;strong&gt;multiple slave nodes&lt;/strong&gt;. Internally the files get divided into one or more &lt;em&gt;&lt;strong&gt;blocks&lt;/strong&gt;&lt;/em&gt;, and each block is stored on different slave machines depending on the &lt;em&gt;&lt;strong&gt;replication factor.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure  &gt;
+  &lt;div class=&#34;d-flex justify-content-center&#34;&gt;
+    &lt;div class=&#34;w-100&#34; &gt;&lt;img src=&#34;https://cdn-images-1.medium.com/max/2200/0*CH-pofhVy0wfjgqy.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34; data-zoomable /&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/figure&gt;
+&lt;/p&gt;
+&lt;h2 id=&#34;namenode&#34;&gt;&lt;strong&gt;NameNode&lt;/strong&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;It is the hardware that contains the operating system(GNU/Linux) and the NameNode software. It is responsible for serving the client’s read/write requests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It Stores metadata such as number of blocks, their location, permission, replicas and other details on the local disk in the form of two files:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;FSImage(&lt;strong&gt;File System Image&lt;/strong&gt;)&lt;/strong&gt;: It contains the complete namespace of the Hadoop file system since the NameNode creation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Edit log&lt;/strong&gt;: It contains all the recent changes performed to the file system namespace to the most recent &lt;strong&gt;FSImage&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;NameNode maintains and manages the slave nodes, and assigns tasks to them. It also keeps the status of data node and make sure that it is alive.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It can manage the files, control a client’s access to files, and overseas file operating processes such as renaming, opening, and closing files.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;datanode&#34;&gt;&lt;strong&gt;DataNode&lt;/strong&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For every node in the HDFS cluster we locate a DataNode which is hardware consisting operating system(GNU/Linux) and a DataNode software which help to control the data storage of their system as they can perform operations on the file systems if the client requests.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It can also create, replicate, and block files when the NameNode instructs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sends heartbeat and block report to the NameNode to report its health and the list of block it contains respectively.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;blocks&#34;&gt;Blocks&lt;/h2&gt;
+&lt;p&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure  &gt;
+  &lt;div class=&#34;d-flex justify-content-center&#34;&gt;
+    &lt;div class=&#34;w-100&#34; &gt;&lt;img src=&#34;https://cdn-images-1.medium.com/max/2000/1*jISZB5Cf7YKMLg3DDebiHA.png&#34; alt=&#34;Data Blocks in Hadoop HDFS&#34; loading=&#34;lazy&#34; data-zoomable /&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/figure&gt;
+&lt;/p&gt;
+&lt;p&gt;Internally HDFS split the file into multiple blocks with the default value of 128MB called block.&lt;/p&gt;
+&lt;h2 id=&#34;rack&#34;&gt;Rack&lt;/h2&gt;
+&lt;p&gt;Rack is the collection of around 40–50 machines (DataNodes) connected using the same network switch. If the network goes down, the whole rack will be unavailable.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Rack Awareness&lt;/strong&gt; in Hadoop is the concept that chooses DataNodes based on the rack information in the large Hadoop cluster, to improve the network traffic while reading/writing the HDFS file and to store replicas and provide latency and fault tolerance. For the default replication factor of 3, rank awareness algorithm will first store the replica on the local rack, while the second replica will get stored on DataNode in same rank and the third replica will get stored in different rack.&lt;/p&gt;
+&lt;h2 id=&#34;understanding-hdfs-read-and-write-operation&#34;&gt;Understanding HDFS Read and Write Operation&lt;/h2&gt;
+&lt;h3 id=&#34;read-operation&#34;&gt;Read Operation&lt;/h3&gt;
+&lt;p&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure  &gt;
+  &lt;div class=&#34;d-flex justify-content-center&#34;&gt;
+    &lt;div class=&#34;w-100&#34; &gt;&lt;img src=&#34;https://cdn-images-1.medium.com/max/4276/1*FRLpwP1rZcp4zfwGQQkeFA.jpeg&#34; alt=&#34;Block Diagram for HDFS read Operation&#34; loading=&#34;lazy&#34; data-zoomable /&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/figure&gt;
+&lt;/p&gt;
+&lt;p&gt;To read from HDFS, the client first communicates with the NameNode for metadata. The NameNode responds with the locations of DataNodes containing blocks. After receiving the DataNodes locations, the client then directly interacts with the DataNodes.&lt;/p&gt;
+&lt;p&gt;The client starts reading data in parallel from the DataNodes based on the information received from the NameNode. The data will flow directly from the DataNode to the client.&lt;/p&gt;
+&lt;p&gt;In the above image we can see that first client interact with Name Node to get the location of DataNode containing blocks B1 and B2. NameNode returns a list of DataNodes for each block. For Block B1 if DataNode D7 fails or data block is corrupted then next node in the list D10 will be picked up. Similarly for Block B2, if DataNode D1 fails or if data blocks are corrupted, then D2 will be picked up.&lt;/p&gt;
+&lt;p&gt;Failure Cases can be summarised as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Data block is corrupted:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Next node in the list is picked up.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Data Node fails:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Next node in the list is picked up.&lt;/li&gt;
+&lt;li&gt;That node is not tried for the later blocks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When a client or application receives all the blocks of the file, it combines these blocks into the form of an original file.&lt;/p&gt;
+&lt;h3 id=&#34;write-operation&#34;&gt;Write Operation&lt;/h3&gt;
+&lt;p&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure  &gt;
+  &lt;div class=&#34;d-flex justify-content-center&#34;&gt;
+    &lt;div class=&#34;w-100&#34; &gt;&lt;img src=&#34;https://cdn-images-1.medium.com/max/3918/1*SygsHBVWV7wfCQIpANxqAA.jpeg&#34; alt=&#34;Block Diagram for HDFS write Operation&#34; loading=&#34;lazy&#34; data-zoomable /&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/figure&gt;
+&lt;/p&gt;
+&lt;p&gt;When a client wants to write a file to HDFS, it communicates to the NameNode for metadata. Name Node checks whether file is available or not as well as whether client is authorised or not (performs various checks) and then the NameNode responds with a number of blocks, their location, replicas, and other details. Based on information from NameNode, the client directly interacts with the DataNode.&lt;/p&gt;
+&lt;p&gt;In the above image we see that once client get the list of DataNode, it interact directly with them. Since the default replication factor for a block is 3, NameNode provides 3 DataNodes D1, D2 and D3 for the write request from the client. Data block is written and replicated in these 3 DataNodes and step 3, 4 and 5 will be repeated until whole file is written on HDFS. In case 1 of the Data Node fail, the data is written to the remaining 2 nodes and NameNode notices under-replication and arrange extra node for the replication. Once required replicas are created acknowledgement to the client is sent.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Before Hadoop2, NameNode was the single point of failure. &lt;strong&gt;The High Availability Hadoop cluster architecture&lt;/strong&gt; introduced in Hadoop 2, allows for two or more NameNodes running in the cluster in a hot standby configuration.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://data-flair.training/blogs/hadoop-hdfs-architecture/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://data-flair.training/blogs/hadoop-hdfs-architecture/&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://data-flair.training/blogs/hadoop-hdfs-namenode-high-availability/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://data-flair.training/blogs/hadoop-hdfs-namenode-high-availability/&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.databricks.com/glossary/hadoop-distributed-file-system-hdfs&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://www.databricks.com/glossary/hadoop-distributed-file-system-hdfs&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.c-sharpcorner.com/article/read-and-write-operation-in-hdfs/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://www.c-sharpcorner.com/article/read-and-write-operation-in-hdfs/&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
