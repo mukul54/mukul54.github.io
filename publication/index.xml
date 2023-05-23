@@ -5,12 +5,20 @@
     <link>https://mukul54.github.io/publication/</link>
       <atom:link href="https://mukul54.github.io/publication/index.xml" rel="self" type="application/rss+xml" />
     <description>Publications</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sat, 18 Feb 2023 00:00:00 +0000</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 28 Feb 2023 00:00:00 +0000</lastBuildDate>
     <image>
       <url>https://mukul54.github.io/publication/featured.jpg</url>
       <title>Publications</title>
       <link>https://mukul54.github.io/publication/</link>
     </image>
+    
+    <item>
+      <title>An evaluation of Google Translate for Sanskrit to English translation via sentiment and semantic analysis</title>
+      <link>https://mukul54.github.io/publication/preprint/</link>
+      <pubDate>Tue, 28 Feb 2023 00:00:00 +0000</pubDate>
+      <guid>https://mukul54.github.io/publication/preprint/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Deep-ASPECTS: A Segmentation-Assisted Model for Stroke Severity Measurement</title>
@@ -27,20 +35,6 @@
       <pubDate>Thu, 01 Sep 2022 00:00:00 +0000</pubDate>
       <guid>https://mukul54.github.io/publication/journal-article/</guid>
       <description>&lt;p&gt;Supplementary notes can be added here, including &lt;a href=&#34;https://github.com/sydney-machine-learning/topicmodelling_vedictexts&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;code, math, and images&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>An example preprint / working paper</title>
-      <link>https://mukul54.github.io/publication/preprint/</link>
-      <pubDate>Sun, 07 Apr 2019 00:00:00 +0000</pubDate>
-      <guid>https://mukul54.github.io/publication/preprint/</guid>
-      <description>&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    Create your slides in Markdown - click the &lt;em&gt;Slides&lt;/em&gt; button to check out the example.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Supplementary notes can be added here, including &lt;a href=&#34;https://wowchemy.com/docs/writing-markdown-latex/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;code, math, and images&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
