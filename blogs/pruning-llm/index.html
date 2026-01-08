@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the Pruning of Large Language Models</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2a2a2a;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5em auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+        }
+
+        .equation {
+            margin: 1.5em 0;
+            padding: 1em;
+            background-color: #f9f9f9;
+            border-left: 3px solid #4CAF50;
+            overflow-x: auto;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 1em;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 1em;
+        }
+
+        .references {
+            margin-top: 2em;
+            font-size: 0.9em;
+        }
+
+        .references ol {
+            margin-left: 1.5em;
+        }
+
+        .references li {
+            margin-bottom: 0.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Understanding the Pruning of Large Language Models</h1>
+            <p class="subtitle">Efficient LLM Part 1: Fundamental of Pruning</p>
+        </header>
+
+        <article>
+            <h3>Introduction</h3>
+            <p>Large Language Models (LLMs) like GPT-4, Claude, Gemini, and their open-source counterparts such as LLaMA, Deepseek, Qwen, GLM, and Mistral have revolutionized the domain of artificial intelligence. They have the ability to perform a wide range of tasks from writing poetry and solving complex problems to engage in conversations that feel remarkably human. However, they're <strong>massive, expensive to run, and require enormous computational resources</strong>.</p>
+
+            <h3>The Efficiency Problem in AI and The Lottery Ticket Hypothesis</h3>
+            <p>Before getting into the solutions, let's first understand the problem. Modern LLMs are computational monstrous. Let's have a look at Figure 1 and 2 and the following trend in the SOTA model parameters.</p>
+
+            <p>Look at these images from the recently published Artificial Intelligence Index Report 2025 [46].</p>
+
+            <img src="images/figure1-parameters.png" alt="Figure 1: The number of parameters in the notable AI models">
+            <p class="figure-caption">Figure 1: The number of parameters in the notable AI models.</p>
+
+            <img src="images/figure2-training-cost.png" alt="Figure 2: Estimated Training cost of selected AI models">
+            <p class="figure-caption">Figure 2: Estimated Training cost of selected AI models</p>
+
+            <ul>
+                <li><strong>GPT-4</strong> reportedly contains 1.76 trillion parameters [37, 38]</li>
+                <li><strong>Google's GLaM</strong> weighs in at 1.2 trillion parameters [36]</li>
+                <li>Even "smaller" models like <strong>LLaMA-70B</strong> require multiple high-end GPUs just to run</li>
+                <li>and many more …</li>
+            </ul>
+
+            <p>These things show that even though these models work well, they are extremely expensive and out of reach of the general population of the world. To make it accessible for everyone, we must need to do something else. Is there a way? The answer to this question is yes!!</p>
+
+            <p>If you are familiar with the fundamental of deep learning you might be aware of the fact that deep learning models are massively overparameterized; meaning they have much more parameters than the dataset they are trained on. The exact mechanism of how it works is still unknown and explainability is one of the major area of research, however overparameterization somehow works and this is what makes sparsity techniques one of the major lever here. Pruning in Efficient ML has been sort of evergreen technique going back to 90s when papers like OBD[5], OBS[4] and EBD[42] first got published. Recent methods maked these older techniques work for modern LLMs. Methods like SparseGPT, Wanda, LLM-Pruner and NVIDIA's Minitron[3, 4] have shown that we can compress models by 2 to 4x while maintaining performance, making powerful AI accessible to organizations with limited computational resources.</p>
+
+            <p><strong>Why does pruning work so well?</strong> I don't want to discuss in detail here but the Lottery Ticket Hypothesis [2] offers a great insight in this regard. The main intuition again comes from overparameterization hypothesis. The Lottery Ticket Hypothesis propose <strong>that a dense, randomly-initialized networks contain sparse subnetworks ("winning tickets") that, when trained in isolation with their original initialization, can match the full network's performance.</strong> The catch is these subnetworks only work with their specific initial weights and random reinitialization kills performance. This suggests massive networks may be necessary not for capacity, but to ensure some well-initialized subnetwork exists that can learn effectively. I mght write a seperate blog for this, if you are interested I would suggest you to read the paper. It is very interesting and pretty well written.</p>
+
+            <h2>Part I: Pruning</h2>
+
+            <h3>What is Pruning?</h3>
+            <p>Pruning is a technique used to reduce the size of a neural network by removing <strong><em>unnecessary or less significant parameters</em></strong> (weights) from the model. The primary objective of pruning is to create a smaller, more efficient model without significantly sacrificing accuracy. Pruning can be performed at different levels of the neural network, such as neurons, layers, or individual weights. Many neural networks are heavily over-parameterized. We can often remove 50–90% of a model's weights without significantly impacting performance. For most of the cases, a significance values (or <strong>importance score</strong> or <strong>saliency</strong> or <strong>sensitivity</strong>) is used to identify the least important weight/blocks/layers in order to remove them.</p>
+
+            <h3>Different Types of Pruning</h3>
+
+            <img src="images/figure3-pruning-framework.png" alt="Figure 3: A general Framework for Structured, Semi-structured and unstructured pruning">
+            <p class="figure-caption">Figure 3: A general Framework for Structured, Semi-structured and unstructured pruning (source: https://arxiv.org/abs/2312.17244)</p>
+
+            <h3>Unstructured Pruning</h3>
+            <p>In unstructured pruning (non-structured pruning), <strong>a fraction of total weights within the neural network are removed based on their significance score</strong>. It is the finest-grained case of the pruning which operates at the individual weight level. It is called unstructured because <strong>it prunes x% of the total weight without any structure/pattern</strong>. Typically, weights with less significance values (or <strong>importance score</strong> or <strong>saliency</strong> or <strong>sensitivity</strong>) are considered less important and are pruned. If you are interested in the more formal definition of the unstructured pruning, you can have a look at the section 3.1 of this survey paper [3].</p>
+
+            <p>We will discuss different pruning criteria for finding the significance score for pruning in the next section. Methods like WANDA (Weights and Activations)[15] prune weights based on the importance score calculated by multiplying wight's magnitudes by corresponding input activations, requiring no retraining. GBLM Pruner [39] uses gradient, weight and activation to calculate the importance score and then prune the weight with the least score. Weight update based methods like SparseGPT [16] and OBS[4] uses second order gradient(Hessian) to first identify the pruning mask (weights to be pruned) and then to update the remaining weight to compensate for the pruned weight. Identification of the <strong>pruning mask works by identifying the least important weight based on the importance score</strong> which depends on the Hessian.</p>
+
+            <p><strong>Pros & Cons:</strong></p>
+            <ul>
+                <li>Maximum flexibility in choosing what to remove</li>
+                <li>Fine-grained pruning leads to a significant reduction in model size. Can achieve very high sparsity levels (80–95%)</li>
+                <li>Can be applied to any part of the network.</li>
+                <li>The resulting sparsity can lead to inefficiencies in hardware acceleration, as many deep learning frameworks are optimized for dense matrix operations.</li>
+            </ul>
+
+            <img src="images/figure4-unstructured-pruning.png" alt="Figure 4: Unstructured Pruning">
+            <p class="figure-caption">Figure 4: Unstructured Pruning: It prunes x% of the weight without any structure/pattern based on the saliency score: Dense weight (left image), Pruned weight (right image)</p>
+
+            <h3>Structured Pruning</h3>
+            <p>Structured pruning takes a different approach, instead of removing individual weights, it removes entire components like neurons, attention heads, or even complete layers.</p>
+
+            <h3>Pros</h3>
+            <ul>
+                <li><strong>Immediate speedup</strong> on standard hardware</li>
+                <li><strong>Smaller model files</strong> for easier deployment</li>
+                <li><strong>Predictable performance gains</strong> that align with theoretical calculations</li>
+            </ul>
+
+            <p>The choice between structured and unstructured pruning often comes down to deployment requirements: if you need immediate inference speedup, structured pruning is typically the way to go. To understand different types of structured pruning and pruning metric used in this method, look at my blog <a href="https://medium.com/@mukulranjan/combining-pruning-and-knowledge-distillation-1b5b7407c8c8">here</a>.</p>
+
+            <img src="images/figure5-pruning-comparison.png" alt="Figure 5: Comparison of pruning units">
+            <p class="figure-caption">Figure 5: Comparison of pruning units. Width pruning reduces the size of projection weight matrices. Depth pruning removes Transformer blocks, or individual MHA and FFN modules.[source: Shortened LLaMA]</p>
+
+            <h3>Semi-Structured Pruning</h3>
+            <p>This is the middle ground, which combines elements of both approaches. The most popular variant is <strong>N:M sparsity</strong>, where N weights are pruned from every consecutive group of M weights. For example, in 2:4 magnitude pruning [39], 2 parameter with lowest absolute value of magnitude from the group of 4 is removed as shown below.</p>
+
+            <pre><code>2:4 Sparsity Pattern:
+Original: [0.8, 0.2, 0.9, 0.1] → Pruned: [0.8, 0.0, 0.9, 0.0]
+Original: [0.3, 0.7, 0.4, 0.6] → Pruned: [0.0, 0.7, 0.0, 0.6]</code></pre>
+
+            <p>This approach has gained traction because it can leverage specialized hardware features. NVIDIA's new GPUs have built-in support for 2:4 sparsity patterns, providing automatic acceleration [40].</p>
+
+            <h3>Dynamic Pruning</h3>
+            <p>Dynamic pruning [10, 11, 12, 13, 14, 15, 16] adjusts the model structure during training rather than after it, allowing the pruning process to adapt to the model's evolving understanding. Methods like "Fire Together Wire Together" use self-supervised mask prediction to identify which connections should be preserved or pruned during training.</p>
+
+            <h2>Part II: Pruning Criteria</h2>
+            <p>Now that we understand <em>what</em> to prune (individual weights, neurons, or layers), let's explore <em>how</em> to decide which weights to remove. This is the central question in neural network pruning: <strong>How do we measure a weight's importance?</strong> The most simple thing that we all can think of this is to consider is the magnitude of the weight as the saliency score but it doesn't work well for the obvious reason (A small weight can be important if removing it requires large compensatory changes elsewhere in the network or say if it corresponds to attention sink[46] in modern LLMs).</p>
+
+            <p>In this section, we'll explore two fundamental approaches for the saliency measure and pruning algorithms:</p>
+            <ol>
+                <li><strong>Weight Update Based Methods (OBD, OBS, SparseGPT)</strong>: These methods use second-order information (Hessian) to both identify <em>which weights to prune</em> AND <em>how to update the remaining weights to compensate for the removal</em>.</li>
+                <li><strong>Direct Saliency Methods/Methods Without Weight Updates (WANDA, GBLM-Pruner)</strong>: These methods compute importance scores using first-order information (gradients, activations, weights) without explicitly updating other weights.</li>
+            </ol>
+
+            <h2>Weight Update Based Methods</h2>
+            <p>Let's try to understand the basic mathematics of neural network pruning. I would assume that you have some basic understanding of linear algebra and neural network here. We will start with Optimal Brain damage.</p>
+
+            <h3>1. Optimal Brain Damage (OBD)</h3>
+            <p>OBD is considered as one of the first paper to introduce the idea of neural network pruning. The fundamental question OBD asks is: <em>If I set a weight to zero, how much will the loss function change?</em> They approximate this using a Taylor expansion of the loss function around a local minimum. When we perturb weights by δw, the loss E changes by δE, given as:</p>
+
+            <div class="equation">
+                $$\delta E = \sum_i \frac{\partial E}{\partial w_i} \delta w_i + \frac{1}{2} \sum_i \frac{\partial^2 E}{\partial w_i^2} (\delta w_i)^2 + \frac{1}{2} \sum_{i \neq j} \frac{\partial^2 E}{\partial w_i \partial w_j} \delta w_i \delta w_j + O(\|\delta w\|^3)$$
+            </div>
+            <p class="figure-caption">Equation 1: Second-order Taylor expansion showing how loss E changes when weights are perturbed by δw. This approximation is the foundation of OBD's saliency measure.</p>
+
+            <p>Or in the matrix notation this can be written as follows:</p>
+
+            <div class="equation">
+                $$\delta E = \mathbf{g}^T \delta \mathbf{w} + \frac{1}{2} \delta \mathbf{w}^T \mathbf{H} \delta \mathbf{w} + O(\|\delta \mathbf{w}\|^3)$$
+            </div>
+            <p class="figure-caption">Equation 2: Matrix notation of the above equation. Where g = gradient vector (∂E/∂w_i) and H = Hessian matrix (∂²E/∂wᵢ∂wⱼ)</p>
+
+            <p>OBD makes three key approximation to simplify the above equation. <strong>1)</strong> At a minimum, g = 0 so the first term will become 0, <strong>2)</strong> Ignore higher-order terms O(‖δw‖³) and <strong>3)</strong> assume that the hessian is diagonal which implies that H = ∂²E/∂wᵢ∂wⱼ ≈ 0 whenever i ≠ j. This means weights can be considered independently, that is changing one weight doesn't affect the optimal values of others. Under this diagonal assumption, our equation simplifies to δE ≈ ½ Σᵢ hᵢᵢ(δwᵢ)². where hᵢᵢ = ∂²E/∂wᵢ² is the i-th diagonal element of the Hessian.</p>
+
+            <p>When we delete a weight, <strong>we're essentially making the perturbed weight δwᵢ + wᵢ = 0 and hence setting δwᵢ = -wᵢ.</strong> This gives us the saliency formula to <strong>sᵢ = ½ hᵢᵢwᵢ²</strong></p>
+
+            <div class="equation">
+                $$s_i = \frac{1}{2} h_{ii} w_i^2$$
+                <p>where:</p>
+                $$h_{ii} = \frac{\partial^2 E}{\partial w_i^2}$$
+                $$\delta w_i = -w_i$$
+            </div>
+            <p class="figure-caption">Equation 3 (a, b, c): Final Saliency score for OBD</p>
+
+            <p>The saliency term has two components: wᵢ² captures the magnitude of the weight (larger weights generally matter more), while hᵢᵢ captures the curvature of the error surface (high curvature means the error is very sensitive to changes in this weight). Weights with low saliency can be safely deleted.</p>
+
+            <h3>2. Optimal Brain Surgeon (OBS)</h3>
+            <p>OBS build upon the OBD by using the <strong>full Hessian</strong> (all second-order interactions) and <strong>updating remaining weights</strong> to compensate for pruned weights <strong>without retraining</strong>. Which is basically not considering the third assumption of OBD. If we just consider the assumption 1 and 2 of OBD discussed above, equation 2 takes the form of equation 4.</p>
+
+            <div class="equation">
+                $$\delta E = \frac{1}{2} \delta \mathbf{w}^T \mathbf{H} \delta \mathbf{w}$$
+            </div>
+            <p class="figure-caption">Equation 4: Change in the loss without any diagonal approximation. Note that H is not a diagonal matrix here unlike OBD.</p>
+
+            <p>Since our goal is to <strong>prune the weight wᵢ</strong> that leads to <strong>smallest increase in the error δE,</strong> we can formulate our optimization problems as shown in equation 5. Note that the condition <strong>δwᵢ + wᵢ = 0</strong> in the equation 5 comes from the fact that we want to prune the weight <strong>wᵢ,</strong> meaning the value of the weight after perturbation must be zero as discussed in the case of OBD.</p>
+
+            <div class="equation">
+                $$\min_{\delta \mathbf{w}} \frac{1}{2} \delta \mathbf{w}^T \mathbf{H} \delta \mathbf{w}$$
+                $$\text{subject to: } \delta w_i + w_i = 0$$
+            </div>
+            <p class="figure-caption">Equation 5: Constrained optimization problem for OBS. Note that since the non-diagonal elements of H can be non-zero we need to solve this constrained optimization using Lagrange multiplier and find the optimal values of saliency score and the perturbation δw.</p>
+
+            <p>We can form the a Lagrangian from above equation as shown in equation 6. Note that <strong>eᵢ</strong> is a unit vector in the weight space corresponding to (scalar) weight <strong>wᵢ</strong>.</p>
+
+            <div class="equation">
+                $$\mathcal{L}(\delta \mathbf{w}, \lambda) = \frac{1}{2} \delta \mathbf{w}^T \mathbf{H} \delta \mathbf{w} + \lambda(\mathbf{e}_i^T \delta \mathbf{w} + w_i)$$
+            </div>
+            <p class="figure-caption">Equation 6: Lagrangian for constrained equation 5.</p>
+
+            <p>where λ is a Lagrange multiplier. We can take derivatives w.r.t. δ<strong>w</strong> and λ and set them to zero and then employ the constraints <strong>δwᵢ + wᵢ = 0</strong>, to find that the optimal weight change <strong>δw</strong> and resulting change in error <strong>δE</strong> as shown in equation 7 below.</p>
+
+            <div class="equation">
+                $$\delta \mathbf{w} = -\frac{w_i}{[\mathbf{H}^{-1}]_{ii}} \mathbf{H}^{-1} \mathbf{e}_i$$
+                $$\delta E = \frac{w_i^2}{2[\mathbf{H}^{-1}]_{ii}}$$
+            </div>
+            <p class="figure-caption">Equation 7: Optimal weight change δw and resulting change in error δE</p>
+
+            <p>Hence, the saliency formula takes the following form in Equation 8. Note that the update formula <strong>δw</strong> adjusts all remaining weights based it's value provided by equation 7.</p>
+
+            <div class="equation">
+                $$s_i = \frac{w_i^2}{2[\mathbf{H}^{-1}]_{ii}}$$
+            </div>
+            <p class="figure-caption">Equation 8: Saliency formula for OBS</p>
+
+            <h3>Comparing OBD and OBS</h3>
+            <p>At first glance, the saliency formulas look similar:</p>
+            <ul>
+                <li><strong>OBD</strong>: sᵢ = ½hᵢᵢwᵢ² (uses <strong>diagonal of Hessian</strong>)</li>
+                <li><strong>OBS</strong>: sᵢ = wᵢ²/2[<strong>H</strong>⁻¹]ᵢᵢ (uses <strong>diagonal of inverse Hessian</strong>)</li>
+            </ul>
+
+            <p>But they're completely different, OBD uses the diagonal elements of <strong>H</strong> but OBS uses the diagonal elements of <strong>H</strong>⁻¹. For a diagonal matrix, [<strong>H</strong>⁻¹]ᵢᵢ = 1/hᵢᵢ, so OBS reduces to OBD. But when <strong>H</strong> has significant off-diagonal terms (which it <strong>always</strong> does in practice for neural networks), these give completely different results. A weight might have high hᵢᵢ (OBD says "important!") but also high [<strong>H</strong>⁻¹]ᵢᵢ (OBS says "safe to prune because other weights can compensate"). OBD would keep the weight; OBS correctly identifies it as redundant.</p>
+
+            <h3>The Computational Challenge</h3>
+            <p>The difficulty with OBS is computing <strong>H</strong>⁻¹ for a network with thousands or millions of weights, the Hessian matrix is enormous. OBS shows that:</p>
+            <ol>
+                <li>The Hessian can be approximated as a sample covariance matrix: <strong>H</strong> ≈ (1/P)∑ₖ <strong>X</strong>⁽ᵏ⁾(<strong>X</strong>⁽ᵏ⁾)ᵀ where <strong>X</strong>⁽ᵏ⁾ are gradient vectors for sample k.</li>
+                <li>This allows <strong>H</strong>⁻¹ to be computed recursively during training using efficient matrix inversion formulas (the Woodbury matrix identity) shown below in Equation 9.</li>
+            </ol>
+
+            <div class="equation">
+                $$\mathbf{H}^{-1}_{m+1} = \mathbf{H}^{-1}_m - \frac{\mathbf{H}^{-1}_m \mathbf{X}^{(k)} (\mathbf{X}^{(k)})^T \mathbf{H}^{-1}_m}{P + (\mathbf{X}^{(k)})^T \mathbf{H}^{-1}_m \mathbf{X}^{(k)}}$$
+            </div>
+            <p class="figure-caption">Equation 9: The Woodbury matrix identity, recursive algorithm for computing inverse of Hessian. Note that, X⁽ᵏ⁾ are gradient vectors for sample k.</p>
+
+            <h3>3. Sparse GPT</h3>
+            <p>The simple OBS implementation doesn't scale to large networks because computing and inverting <strong>H</strong> is O(n^3) where n is the number of weights. For a layer with even 4096 weights, this means ~68 billion operations. For modern LLMs with billions of weights, this is completely intractable. More recent methods like <a href="https://proceedings.neurips.cc/paper_files/paper/2021/file/b0490b85e92b64dbb5db76bf8fca6a82-Paper.pdf">Adaprune</a> [44] solves this problem converting the full model compression problems as the layerwise subproblem. For each layer with weight matrix <strong>W</strong> and input <strong>X</strong>, the goal is to find a pruning mask <strong>M</strong> and updated weights <strong>W</strong>c such that:</p>
+
+            <div class="equation">
+                $$\min_{\mathbf{M}, \mathbf{W}_c} \|\mathbf{W} \mathbf{X} - (\mathbf{W}_c \odot \mathbf{M}) \mathbf{X}\|_F^2$$
+            </div>
+            <p class="figure-caption">Equation 10: Layer wise reconstruction error</p>
+
+            <p>where ⊙ denotes element-wise multiplication. Once the mask is fixed, optimal reconstruction requires solving for each row <em>i</em>:</p>
+
+            <div class="equation">
+                $$\min_{\mathbf{w}_{c,i}} \|\mathbf{w}_i \mathbf{X} - (\mathbf{w}_{c,i} \odot \mathbf{M}_i) \mathbf{X}\|_2^2 = \min_{\mathbf{w}_{c,i}} \|\mathbf{w}_i \mathbf{X}_{M_i} - \mathbf{w}_{c,i} \mathbf{X}_{M_i}\|_2^2$$
+            </div>
+            <p class="figure-caption">Equation 11: Optimal reconstruction for the mixed mask M</p>
+
+            <p>This requires inverting <strong>Hₘᵢ = Xₘᵢ Xᵀₘᵢ</strong> separately for each row because different rows have different masks Mᵢ. For a d×d weight matrix, this costs <strong>O(d⁴)</strong>, which is completely intractable for LLMs.</p>
+
+            <h3>Key Observation and Column-by-Column Processing</h3>
+            <p>One key observation here is the full Hessian <strong>H = XX^T</strong> is the <strong>SAME for all rows</strong> (it only depends on inputs X, not on weights W). The problem is that masking it is different per row that is <strong>(Hₘᵢ)⁻¹ ≠ (H⁻¹)_Mi</strong> ← Can't just mask the inverse!</p>
+
+            <p>To solve these issue SparseGPT makes this approximations -- instead of handling all pruned weights at once, process columns left-to-right and prune one column at a time. It only updates a <em>subset</em> <strong>U</strong> of weights. This is still optimal for that subset just there is less effective compensation of the weight because there will be fewer weights available to absorb the error. Define index subsets:</p>
+
+            <ul>
+                <li>U₁ = {1, 2, 3, …, d} (all columns)</li>
+                <li>U₂ = {2, 3, …, d} (removed column 1)</li>
+                <li>U₃ = {3, …, d} (removed columns 1,2)</li>
+                <li>…</li>
+                <li>Uⱼ = {j, j+1, …, d} (columns j onwards)</li>
+            </ul>
+
+            <p>More formally this can be defined in equation 12. In words, starting with U₁ being the set of all indices, each subset Uⱼ₊₁ is created by removing the smallest index from the previous subset Uⱼ .</p>
+
+            <div class="equation">
+                $$U_1 = \{1, 2, \ldots, d\}, \quad U_{j+1} = U_j \setminus \{\min(U_j)\}$$
+            </div>
+            <p class="figure-caption">Equation 12: a sequence of index sets. In words, starting with U₁ being the set of all indices, each subset Uⱼ₊₁ is created by removing the smallest index from the previous subset Uⱼ .</p>
+
+            <p>For each subset Uⱼ, define its Hessian: H_Uⱼ = (XX^T)_Uⱼ and it's inverse as follows.</p>
+
+            <div class="equation">
+                $$\mathbf{H}_{U_j}^{-1} = [(\mathbf{XX}^T)_{U_j}]^{-1}$$
+            </div>
+            <p class="figure-caption">Equation 13: Inverse hessian of the subset Uⱼ</p>
+
+            <p>we can compute <strong>B = (H_</strong>Uⱼ<strong>)⁻¹</strong> recursively using Gaussian elimination in <strong>O(d²)</strong> time as shown in equation 13 and the full sequence of d inverse Hessians costs <strong>O(d³)</strong> total.</p>
+
+            <div class="equation">
+                $$\mathbf{H}_{U_{j+1}}^{-1} = [\mathbf{H}_{U_j}^{-1}]_{2:,2:} - \frac{[\mathbf{H}_{U_j}^{-1}]_{2:,1} [\mathbf{H}_{U_j}^{-1}]_{1,2:}}{[\mathbf{H}_{U_j}^{-1}]_{1,1}}$$
+            </div>
+            <p class="figure-caption">Equation 14: Recursive relation for the Inverse of Hessian</p>
+
+            <p>This is just the submatrix of H corresponding to columns in Uⱼ. These Hessians impose a sequence of inverses: <strong>(H_U₁)⁻¹, (H_U₂)⁻¹, (H_U₃)⁻¹, …, (H_Uⱼ)⁻¹.</strong> More importantly when processing column j, <strong>all rows use the same H_Uⱼ</strong> because it only depends on which columns remain (j onwards), not on which specific weights in those columns are pruned.</p>
+
+            <img src="images/figure6-sparsegpt-visualization.png" alt="Figure 6: Visualization of the SparseGPT reconstruction algorithm">
+            <p class="figure-caption">Figure 6: [Left] Visualization of the SparseGPT reconstruction algorithm. Given a fixed pruning mask M, we incrementally prune weights in each column of the weight matrix W, using a sequence of Hessian inverses (HUj)−1, and updating the remainder of the weights in those rows, located to the "right" of the column being processed. Specifically, the weights to the "right" of a pruned weight (dark blue) will be updated to compensate for the pruning error, whereas the unpruned weights do not generate updates (light blue). [Right] Illustration of the adaptive mask selection via iterative blocking.(Figure 4 from SparseGPT paper[16])</p>
+
+            <img src="images/figure6-sparsegpt-algorithm.png" alt="Figure 6: SparseGPT algorithm from the original paper">
+            <p class="figure-caption">Figure 6: SparseGPT algorithm from the original paper. Annotation in the official python implementation is provided in the appendix.</p>
+
+            <p>Thus SparseGPT solves the scalability problem of pruning massive LLMs by processing the weight matrix column-by-column from left to right. For each column, it first selects which weights to prune based on their saliency scores (computed using the Hessian inverse diagonal), then zeros out the pruned weights, and finally updates all the remaining weights to the right of the current column to compensate for the introduced error. The key trick is that by processing in this left-to-right order, the algorithm can compute a sequence of Hessian inverses recursively in O(d³) time instead of O(d⁴), and more importantly, each Hessian inverse in the sequence can be shared across all rows of the weight matrix.</p>
+
+            <h2>Methods Without Weight Updates</h2>
+            <p>As discussed above, these methods directly prune the weight based on the importance score/saliency without updating the weight and hence offer much faster pruning compared to weight update based methods.</p>
+
+            <h3>1. WANDA</h3>
+            <p>It prunes weights with the smallest magnitudes multiplied by the corresponding input activations, on a per-output basis. It is Motivated by the recent observation of emergent large magnitude features in LLMs.</p>
+
+            <div class="equation">
+                $$S_{ij} = |W_{ij}| \cdot \|\mathbf{X}_{:,j}\|_2$$
+            </div>
+            <p class="figure-caption">Equation 15: Pruning metric or saliency for Wanda.</p>
+
+            <img src="images/figure7-wanda.png" alt="Figure 7: Illustration of the proposed method Wanda">
+            <p class="figure-caption">Figure 7: Illustration of the proposed method Wanda (Pruning by Weights and activations), compared with the magnitude pruning approach. Given a weight matrix W and input feature activations X, it compute the weight importance as the elementwise product between the weight magnitude and the norm of input activations (|W|· ∥X∥2). Weight importance scores are compared on a per-output basis (within each row in W), rather than globally across the entire matrix. (Figure 1 from WANDA paper, https://arxiv.org/abs/2306.11695)</p>
+
+            <h3>2. GBLM-Pruner</h3>
+            <p>GBLM-Pruner extends WANDA by adding gradient information to the pruning metric. All the methods discussed before assume that since model is trained gradient value should be 0, however that is not the case when authors empirically observe this. The pruning metric/saliency for this methods is given by equation 16.</p>
+
+            <div class="equation">
+                $$S_{ij} = \|G_{[:,i,j]}\|_p \cdot |W_{ij}| + \alpha \cdot |W_{ij}| \cdot \|\mathbf{X}_{:,j}\|_2$$
+            </div>
+            <p class="figure-caption">Equation 16: Pruning metric or saliency for GBLM-Pruner. α is an empirically determined scaling factor (α = 100 ) and ∥G[:, i, j]∥p represents the ℓp norm of gradients across samples.</p>
+
+            <img src="images/figure8-gblm-pruner.png" alt="Figure 8: Illustration of method GBLM-Pruner">
+            <p class="figure-caption">Figure 8: Illustration of method GBLM-Pruner. Given a weight matrix, W, a gradient matrix, G, and an input feature activation, X, weight importance is computed as an elementwise multiplication of weight magnitude and ℓ1 or ℓ2 norm of the gradients across multiple samples, denoted as ∥G∥p · |W|, optionally, it is promotable to add the multiplication of weight and the ℓ2 norm of input activations, denoted as |W| · ∥X∥2. (Figure 1 from GBLM-Pruner paper, https://arxiv.org/pdf/2311.04902)</p>
+
+            <h2>Appendix</h2>
+
+            <h3>Basic OBS implementation</h3>
+            <p>Here I tried to implement the naive version of OBS algorithm described in the paper. You can have a look at complete code from scratch <a href="https://github.com/mukul54/ml-basics/blob/main/pruning/obs.py">here</a>.</p>
+
+            <pre><code>import numpy as np
+
+def compute_hessian_inverse(X, alpha=1e-5):
+    """
+    Compute inverse Hessian H^{-1} where H = (1/P) * X * X^T
+
+    Args:
+        X: Input gradients matrix (n_samples, n_weights)
+        alpha: Damping factor for numerical stability
+
+    Returns:
+        H_inv: Inverse Hessian (n_weights, n_weights)
+    """
+    n_samples, n_weights = X.shape
+    P = n_samples
+
+    # Initialize with damped identity
+    H_inv = (1.0 / alpha) * np.eye(n_weights)
+
+    # Recursive update for each sample
+    for m in range(n_samples):
+        x = X[m:m+1, :].T  # Column vector (n_weights, 1)
+
+        # Woodbury matrix identity update
+        numerator = H_inv @ x @ x.T @ H_inv
+        denominator = P + x.T @ H_inv @ x
+
+        H_inv = H_inv - numerator / denominator
+
+    return H_inv
+
+def obs_pruning_step(weights, H_inv):
+    """
+    Perform one step of OBS: find weight to prune and compute updates
+
+    Args:
+        weights: Current weight vector (n_weights,)
+        H_inv: Inverse Hessian matrix (n_weights, n_weights)
+
+    Returns:
+        q: Index of weight to prune
+        saliency: Saliency of that weight
+        weight_updates: Updates for all weights
+    """
+    n_weights = len(weights)
+
+    # Compute saliency for each weight
+    # L_q = w_q^2 / (2 * [H^{-1}]_{qq})
+    H_inv_diag = np.diag(H_inv)
+    saliencies = (weights ** 2) / (2 * H_inv_diag)
+
+    # Find weight with minimum saliency (excluding already pruned weights)
+    active_weights = weights != 0
+    saliencies[~active_weights] = np.inf
+    q = np.argmin(saliencies)
+
+    # Compute weight updates: δw = -(w_q / [H^{-1}]_{qq}) * H^{-1}[:, q]
+    e_q = np.zeros(n_weights)
+    e_q[q] = 1.0
+
+    weight_updates = -(weights[q] / H_inv[q, q]) * (H_inv @ e_q)
+
+    return q, saliencies[q], weight_updates
+
+# Example usage
+if __name__ == "__main__":
+    # Simulate a small example
+    n_weights = 5
+    n_samples = 10
+
+    # Random weight gradients (in practice, computed from backprop)
+    X = np.random.randn(n_samples, n_weights) * 0.1
+
+    # Current weights (after training)
+    weights = np.array([0.5, 0.1, 0.8, 0.2, 0.3])
+
+    # Compute inverse Hessian
+    H_inv = compute_hessian_inverse(X)
+
+    print("Initial weights:", weights)
+    print("\nPruning iterations:")
+
+    # Prune 3 weights
+    for iteration in range(3):
+        q, saliency, updates = obs_pruning_step(weights, H_inv)
+
+        print(f"\nIteration {iteration + 1}:")
+        print(f"  Pruning weight {q}: {weights[q]:.4f}")
+        print(f"  Saliency: {saliency:.6f}")
+
+        # Apply updates
+        weights = weights + updates
+
+        # Delete the pruned weight
+        weights[q] = 0
+
+        print(f"  Updated weights: {weights}")
+</code></pre>
+
+            <h3>Code for SparseGPT</h3>
+            <p>You can have a look at the original code of SparseGPT <a href="https://github.com/IST-DASLab/sparsegpt/blob/master/sparsegpt.py">here</a>. It is very simple to follow and the most of the code for llm pruning is loosely based on this codebase. I have added the annotated version of the sparsegpt.py from the repo <a href="https://github.com/mukul54/ml-basics/blob/main/pruning/annotated_sparsegpt.py">here</a>.</p>
+
+            <h3>References</h3>
+            <div class="references">
+                <ol>
+                    <li><a href="https://arxiv.org/abs/2402.13116">A Survey on Knowledge Distillation of Large Language Models</a></li>
+                    <li><a href="https://arxiv.org/abs/1803.03635">The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks</a></li>
+                    <li><a href="https://arxiv.org/abs/2308.06767">A Survey on Deep Neural Network Pruning-Taxonomy, Comparison, Analysis, and Recommendations</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper/1992/file/303ed4c69846ab36c2904d3ba8573050-Paper.pdf">Second order derivatives for network pruning: Optimal Brain Surgeon</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper_files/paper/1989/file/6c9882bbac1c7093bd25041881277658-Paper.pdf">Optimal Brain Damage</a></li>
+                    <li><a href="https://arxiv.org/abs/2407.14679">Compact Language Models via Pruning and Knowledge Distillation</a></li>
+                    <li><a href="https://developer.nvidia.com/blog/how-to-prune-and-distill-llama-3-1-8b-to-an-nvidia-llama-3-1-minitron-4b-model/">How to Prune and Distill Llama 3.1 8B to an NVIDIA Llama 3.1 Minitron 4B Model</a></li>
+                    <li><a href="https://arxiv.org/abs/2408.11796">LLM Pruning and Distillation in Practice: The Minitron Approach</a></li>
+                    <li><a href="https://openreview.net/pdf?id=0OU1ZXXxs5">Pruning vs Quantization: Which is Better?</a></li>
+                    <li><a href="https://openaccess.thecvf.com/content/CVPR2022/papers/Elkerdawy_Fire_Together_Wire_Together_A_Dynamic_Pruning_Approach_With_Self-Supervised_CVPR_2022_paper.pdf">Fire Together Wire Together: A Dynamic Pruning Approach with Self-Supervised Mask Prediction</a></li>
+                    <li><a href="https://arxiv.org/abs/2006.07253">Dynamic Model Pruning with Feedback</a></li>
+                    <li><a href="https://medium.com/@rekalantar/pytorch-tutorial-dynamic-weight-pruning-for-more-optimized-and-faster-neural-networks-7b337e47987b">PyTorch Tutorial: Dynamic Weight Pruning</a></li>
+                    <li><a href="https://openaccess.thecvf.com/content/CVPR2021/papers/Tang_Manifold_Regularized_Dynamic_Network_Pruning_CVPR_2021_paper.pdf">Manifold Regularized Dynamic Network Pruning</a></li>
+                    <li><a href="https://openaccess.thecvf.com/content/CVPR2024/papers/Huang_FedMef_Towards_Memory-efficient_Federated_Dynamic_Pruning_CVPR_2024_paper.pdf">FedMef: Towards Memory-efficient Federated Dynamic Pruning</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper_files/paper/2018/file/a9a6653e48976138166de32772b1bf40-Paper.pdf">Frequency-Domain Dynamic Pruning for Convolutional Neural Networks</a></li>
+                    <li><a href="https://openreview.net/forum?id=31EWrnEBsn&noteId=fikquhJPEE">Accelerating Deep Learning with Dynamic Data Pruning</a></li>
+                    <li><a href="https://www.datature.io/blog/a-comprehensive-guide-to-neural-network-model-pruning">A Comprehensive Guide to Neural Network Model Pruning</a></li>
+                    <li><a href="https://arxiv.org/abs/2306.11695">A Simple and Effective Pruning Approach for Large Language Models</a></li>
+                    <li><a href="https://iclr.cc/virtual/2024/poster/18549">Plug-and-Play: An Efficient Post-training Pruning Method for Large Language Models</a></li>
+                    <li><a href="https://arxiv.org/abs/2301.00774">SparseGPT: Massive Language Models Can Be Accurately Pruned in One-Shot</a></li>
+                    <li><a href="https://arxiv.org/abs/2302.01530">Revisiting Intermediate Layer Distillation for Compressing Language Models: An Overfitting Perspective</a></li>
+                    <li><a href="https://openaccess.thecvf.com/content/ICCV2023W/RCV/papers/Liao_Can_Unstructured_Pruning_Reduce_the_Depth_in_Deep_Neural_Networks_ICCVW_2023_paper.pdf">Can Unstructured Pruning Reduce the Depth in Deep Neural Networks?</a></li>
+                    <li><a href="https://openreview.net/forum?id=eoSeaK4QJo">Towards Energy Efficient Spiking Neural Networks: An Unstructured Pruning Framework</a></li>
+                    <li><a href="https://openreview.net/forum?id=jpm1AfJucwt">Revisiting Loss Modelling for Unstructured Pruning</a></li>
+                    <li><a href="https://openreview.net/forum?id=Yg7ExbCxzt6">What Makes a Good Prune? Maximal Unstructured Pruning for Maximal Cosine Similarity</a></li>
+                    <li><a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10090171">Causal Unstructured Pruning in Linear Networks Using Effective Information</a></li>
+                    <li><a href="https://arxiv.org/abs/2305.11627">LLM-Pruner: On the Structural Pruning of Large Language Models</a></li>
+                    <li><a href="https://arxiv.org/abs/2403.03853">ShortGPT: Layers in Large Language Models are More Redundant Than You Expect</a></li>
+                    <li><a href="https://arxiv.org/abs/1707.06342">ThiNet: A Filter Level Pruning Method for Deep Neural Network Compression</a></li>
+                    <li><a href="https://arxiv.org/pdf/1808.06866">Soft Filter Pruning for Accelerating Deep Convolutional Neural Networks</a></li>
+                    <li><a href="https://arxiv.org/abs/2402.02834">Shortened LLaMA: Depth Pruning for Large Language Models with Comparison of Retraining Methods</a></li>
+                    <li><a href="https://arxiv.org/abs/2402.11187">LaCo: Large Language Model Pruning via Layer Collapse</a></li>
+                    <li><a href="https://ieeexplore.ieee.org/abstract/document/10330640">Structured Pruning for Deep Convolutional Neural Networks: A Survey</a></li>
+                    <li><a href="https://arxiv.org/abs/2312.17244">THE LLM SURGEON</a></li>
+                    <li><a href="https://arxiv.org/abs/1906.10771">Importance Estimation for Neural Network Pruning</a></li>
+                    <li><a href="https://gpt3demo.com/apps/google-glam">Google GLaM</a></li>
+                    <li><a href="https://en.wikipedia.org/wiki/GPT-4">GPT-4</a></li>
+                    <li><a href="https://explodingtopics.com/blog/gpt-parameters">GPT Parameters</a></li>
+                    <li><a href="https://arxiv.org/abs/2311.04902">GBLM-Pruner</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper/2015/hash/ae0eb3eed39d2bcef4622b2499a05fe6-Abstract.html">Learning both Weights and Connections for Efficient Neural Network</a></li>
+                    <li><a href="https://developer.nvidia.com/blog/structured-sparsity-in-the-nvidia-ampere-architecture-and-applications-in-search-engines/">Structured Sparsity in the NVIDIA Ampere Architecture</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper_files/paper/1996/file/2ac2406e835bd49c70469acae337d292-Paper.pdf">Early Brain Damage</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper_files/paper/1993/file/b056eb1587586b71e2da9acfe4fbd19e-Paper.pdf">Optimal Brain Surgeon: Extensions and performance comparisons</a></li>
+                    <li><a href="https://proceedings.neurips.cc/paper_files/paper/2021/file/b0490b85e92b64dbb5db76bf8fca6a82-Paper.pdf">Accelerated Sparse Neural Training: A Provable and Efficient Method to Find N:M Transposable Masks</a></li>
+                    <li><a href="https://arxiv.org/abs/2309.17453">Efficient Streaming Language Models with Attention Sinks</a></li>
+                    <li><a href="https://arxiv.org/abs/2504.07139">Artificial Intelligence Index Report 2025</a></li>
+                </ol>
+            </div>
+        </article>
+    </div>
+</body>
+</html>
