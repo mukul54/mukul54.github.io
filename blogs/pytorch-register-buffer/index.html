@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Buffer and Register Parameter in PyTorch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2a2a2a;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 1em;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .meta {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 0.5em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1em;
+            color: #0066cc;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        footer {
+            margin-top: 3em;
+            padding-top: 1em;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../ml-blogs.html" class="back-link">← Back to ML Blogs</a>
+
+        <header>
+            <h1>Register Buffer and Register Parameter in PyTorch</h1>
+            <p class="meta">January 2026 · 8 min read</p>
+        </header>
+
+        <article>
+            <p>
+                When building neural networks in PyTorch, we often need to store tensors that aren't meant to be trained.
+                The most common examples being <code>std</code> and <code>mean</code> for the batch norm (check the pytorch codebase
+                <a href="https://github.com/pytorch/pytorch/blob/v2.9.1/torch/nn/modules/batchnorm.py#L380" target="_blank">here</a>
+                and look for <code>register_buffer</code>). When I first saw this being used frequently in multiple codebases,
+                I found it a bit confusing. After some small google search, I came across really good discussion in the pytorch
+                forum(see references).
+            </p>
+
+            <h3>Basics</h3>
+
+            <p>In PyTorch, there are two main ways to store tensors in our model:</p>
+
+            <p>
+                <strong>Parameters</strong> are learnable tensors that get updated during training. They require gradients
+                and are returned by <code>model.parameters()</code>, which means the optimizer will update them.
+            </p>
+
+            <p>
+                <strong>Buffers</strong> are fixed tensors that don't require gradients. They're not returned by
+                <code>model.parameters()</code>, so the optimizer ignores them. Think of them as constants or
+                non-learnable state that the model needs to remember.
+            </p>
+
+            <h3>Why Not Just Use <code>self.my_tensor</code>?</h3>
+
+            <p>
+                The first confusion I had was if I don't want something trained, can I just assign it directly like
+                <code>self.my_tensor = torch.randn(1)</code> inside my <code>nn.Module</code>? Technically yes,
+                but you'll run into problems.
+            </p>
+
+            <p>Let's see what happens:</p>
+
+            <pre><code>class MyModel(nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.my_tensor = torch.randn(1)
+        self.register_buffer('my_buffer', torch.randn(1))
+        self.my_param = nn.Parameter(torch.randn(1))
+
+    def forward(self, x):
+        return x
+
+model = MyModel()
+print(model.my_tensor)
+# tensor([0.9329])
+print(model.state_dict())
+# OrderedDict([('my_param', tensor([-0.2471])),
+#              ('my_buffer', tensor([1.2112]))])</code></pre>
+
+            <p>
+                Notice that <code>my_tensor</code> doesn't appear in the <code>state_dict()</code>. This means if we
+                save and load the model, <code>my_tensor</code> won't be restored. we will lose that state. Now see
+                what happens when we move the model to GPU:
+            </p>
+
+            <pre><code>model.cuda()
+print(model.my_tensor)
+# tensor([0.9329])  # Still on CPU!
+print(model.state_dict())
+# OrderedDict([('my_param', tensor([-0.2471], device='cuda:0')),
+#              ('my_buffer', tensor([1.2112], device='cuda:0'))])</code></pre>
+
+            <p>
+                The buffer and parameter moved to CUDA, but <code>my_tensor</code> stayed on CPU. This will cause
+                errors when you try to use it in forward passes.
+            </p>
+
+            <p><strong>major benefits of <code>register_buffer</code>:</strong></p>
+
+            <ol>
+                <li>Automatically included in <code>state_dict()</code> for saving/loading</li>
+                <li>Moved to the correct device when you call <code>model.cuda()</code> or <code>model.to(device)</code></li>
+                <li>Makes your code's intent clear to other developers</li>
+            </ol>
+
+            <h3>Why Not Use <code>nn.Parameter</code> with <code>requires_grad=False</code>?</h3>
+
+            <p>
+                Another confusion that I had was: why not just use <code>nn.Parameter(tensor, requires_grad=False)</code>
+                for buffers?
+            </p>
+
+            <p>This technically works for training, but it's confusing and inefficient:</p>
+
+            <ol>
+                <li><strong>Misleading code</strong>: Other developers expect parameters to be learnable. Seeing non-learnable "parameters" is confusing.</li>
+                <li><strong>Optimizer overhead</strong>: If you pass <code>model.parameters()</code> to your optimizer, it includes these fake parameters. The optimizer has to check and skip them on every step, which wastes computation.</li>
+                <li><strong>Code clarity</strong>: Separating buffers and parameters makes your intent obvious at a glance.</li>
+            </ol>
+
+            <h3>Examples</h3>
+
+            <p>Here's a simple example of batch normalization where we track running statistics:</p>
+
+            <pre><code>class SimpleBatchNorm(nn.Module):
+    def __init__(self, num_features):
+        super(SimpleBatchNorm, self).__init__()
+        self.weight = nn.Parameter(torch.ones(num_features))
+        self.bias = nn.Parameter(torch.zeros(num_features))
+
+        # These are not learned, but need to be saved and moved to device
+        self.register_buffer('running_mean', torch.zeros(num_features))
+        self.register_buffer('running_var', torch.ones(num_features))
+        self.register_buffer('num_batches_tracked', torch.tensor(0))
+
+    def forward(self, x):
+        # Use running_mean and running_var for normalization
+        # Update them during training
+        return normalized_output</code></pre>
+
+            <p>
+                The weights and biases are parameters (learned). The running statistics are buffers (tracked but not learned).
+            </p>
+
+            <h3>When to Use <code>register_parameter</code></h3>
+
+            <p>
+                We also see <code>register_parameter()</code> in PyTorch code. It works similarly to directly assigning
+                an <code>nn.Parameter</code>, but we pass the name as a string:
+            </p>
+
+            <pre><code>self.my_param = nn.Parameter(torch.randn(10))
+# vs
+self.register_parameter('my_param', nn.Parameter(torch.randn(10)))</code></pre>
+
+            <p>
+                Both do the same thing. The <code>register_parameter</code> approach is handy when we create parameters
+                in a loop or need dynamic naming:
+            </p>
+
+            <pre><code>for i in range(5):
+    self.register_parameter(f'weight_{i}', nn.Parameter(torch.randn(10)))</code></pre>
+
+            <p>Otherwise, it's just a style choice.</p>
+
+            <h3>Summary</h3>
+
+            <ul>
+                <li>Use <strong>nn.Parameter</strong> for learnable tensors that require gradients</li>
+                <li>Use <strong>register_buffer</strong> for non-learnable tensors that need to be saved and moved with the model</li>
+                <li>Don't use plain attributes like <code>self.my_tensor</code> for anything you want preserved in the model state</li>
+                <li>Don't use <code>nn.Parameter(requires_grad=False)</code> as a hack for buffers</li>
+            </ul>
+
+            <h3>References</h3>
+
+            <ol>
+                <li><a href="https://discuss.pytorch.org/t/what-is-the-difference-between-register-buffer-and-register-parameter-of-nn-module/32723" target="_blank">PyTorch Discussion on register_buffer vs register_parameter</a></li>
+                <li><a href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_buffer" target="_blank">PyTorch Documentation — nn.Module.register_buffer</a></li>
+            </ol>
+        </article>
+
+        <footer>
+            <p>© 2026 Mukul Ranjan</p>
+        </footer>
+    </div>
+
+    <script data-goatcounter="https://mukulranjan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
