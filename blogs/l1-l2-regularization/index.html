@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How does Lasso Regression (L1) Encourage Zero Coefficients but not L2?</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2a2a2a;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5em auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+        }
+
+        .figure-container {
+            margin: 2em 0;
+        }
+
+        .figure-container.small img {
+            max-width: 70%;
+        }
+
+        .figure-number {
+            font-weight: 600;
+            color: #2a2a2a;
+        }
+
+        .equation {
+            margin: 1.5em 0;
+            padding: 1em;
+            background-color: #f9f9f9;
+            border-left: 3px solid #4CAF50;
+            overflow-x: auto;
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .meta {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 0.5em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1em;
+            color: #0066cc;
+        }
+
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .key-point {
+            background-color: #e7f3ff;
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+        }
+
+        footer {
+            margin-top: 3em;
+            padding-top: 1em;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            padding: 1.5em;
+            margin: 1.5em 0;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+
+        .toc ul {
+            margin-left: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../ml-blogs.html" class="back-link">← Back to ML Blogs</a>
+
+        <header>
+            <h1>How does Lasso Regression (L1) Encourage Zero Coefficients but not L2?</h1>
+            <p class="meta">June 2022 · 8 min read</p>
+        </header>
+
+        <article>
+            <p>
+                We often read almost everywhere that Lasso regression <strong>encourages zero coefficient,</strong> and hence
+                provides a great tool for <em>variable selection</em> as well but it is really difficult to get the intuition
+                about this. In this article, I have tried to discuss this in detail.
+            </p>
+
+            <div class="toc">
+                <h3>Contents</h3>
+                <ol>
+                    <li>Overfitting and Regularization</li>
+                    <li>Intuition 1: Optimize a single coefficient model</li>
+                    <li>Intuition 2: Look at this simple example</li>
+                    <li>Intuition 3: Observe this beautiful image</li>
+                    <li>Intuition 4: Probabilistic Interpretation of L1 and L2</li>
+                </ol>
+            </div>
+
+            <h2>Overfitting and Regularization</h2>
+
+            <p>
+                <strong>Overfitting</strong> is a phenomenon where a machine learning model is unable to generalize well on the
+                unseen data. When our model is complex (for example polynomial regression with a very high degree or a very deep
+                neural network) and we have less training data, in those cases model tends to memorize the training data and
+                does not generalize well on unseen data.
+            </p>
+
+            <div class="figure-container small">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*nF6MZQJ431vv-0AGKAj30g.png" alt="Overfitting Example">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 1:</span> The green line represents an overfitted model and the black
+                    line represents a regularized model. While the green line best follows the training data, it is too dependent
+                    on that data and it is likely to have a higher error rate on new unseen data, compared to the black line.
+                    (Source: Wikipedia)
+                </p>
+            </div>
+
+            <p>
+                Look at this image from Wikipedia in which the green line shows the decision boundary of the overfitted classifier
+                while the black one shows the regularized one. We see that even though the green decision boundary seems to give
+                no training error it won't generalize well on the unseen data.
+            </p>
+
+            <p>
+                <strong>Regularization</strong> is one of the ways to reduce the overfitting of a machine learning model by
+                adding the extra penalty to the loss function. The penalty is added in terms of some norms of the parameters.
+                When the loss function of the linear regression model uses the L1 norm of the parameters, the regression model
+                is called <strong>Lasso Regression</strong> while the one which uses the L2 norms is called
+                <strong>Ridge Regression</strong>.
+            </p>
+
+            <h2>Intuition 1: Optimize a Single Coefficient Model</h2>
+
+            <p>
+                As explained <a href="https://stats.stackexchange.com/a/368426/211187" target="_blank">here</a>, consider a
+                Ridge Regression model with a <em>single coefficient β</em>, the equation for the loss function of L2 regression
+                in this can be given as follows:
+            </p>
+
+            <div class="equation">
+                $$\text{Loss}_{L2} = \sum_{i=1}^{n} (y_i - \beta x_i)^2 + \lambda \beta^2$$
+            </div>
+
+            <p>To minimize this equation, we take the derivative w.r.t β and equate it to 0 to get the coefficient's optimal value:</p>
+
+            <div class="equation">
+                $$\frac{\partial \text{Loss}_{L2}}{\partial \beta} = -2\sum_{i=1}^{n} x_i(y_i - \beta x_i) + 2\lambda\beta = 0$$
+                $$\beta = \frac{\sum_{i=1}^{n} x_i y_i}{\sum_{i=1}^{n} x_i^2 + \lambda}$$
+            </div>
+
+            <p>
+                We see from the above equation that for coefficient β to be 0 for non-zero values of $x$ and $y$, $\lambda \to \infty$.
+                Now let's look at the case for L1 or Lasso regression.
+            </p>
+
+            <div class="equation">
+                $$\text{Loss}_{L1} = \sum_{i=1}^{n} (y_i - \beta x_i)^2 + \lambda |\beta|$$
+            </div>
+
+            <p>Consider the case where $\beta > 0$, and minimize the expression for the L1 loss by differentiating it w.r.t β:</p>
+
+            <div class="equation">
+                $$\frac{\partial \text{Loss}_{L1}}{\partial \beta} = -2\sum_{i=1}^{n} x_i(y_i - \beta x_i) + \lambda = 0$$
+                $$\beta = \frac{\sum_{i=1}^{n} x_i y_i - \frac{\lambda}{2}}{\sum_{i=1}^{n} x_i^2}$$
+            </div>
+
+            <p>Similarly, for $\beta < 0$, we get the following equation:</p>
+
+            <div class="equation">
+                $$\beta = \frac{\sum_{i=1}^{n} x_i y_i + \frac{\lambda}{2}}{\sum_{i=1}^{n} x_i^2}$$
+            </div>
+
+            <div class="key-point">
+                <p>
+                    <strong>Important observation:</strong> From both of the above equations, we see that in the case of L1 regularization,
+                    there are infinite possible values of $x$ and $y$ for a given $\lambda$, for which it is possible for β to
+                    be 0. Hence in contrast to Ridge regression, LASSO or L1 Regression encourages 0 coefficients therefore
+                    acting as a method of variable selection.
+                </p>
+            </div>
+
+            <h2>Intuition 2: Look at This Simple Example</h2>
+
+            <p>
+                This was the first good intuition that I found related to this topic in Murphy's, <strong>Machine Learning: A
+                Probabilistic Perspective (page no. 431)</strong>. Consider a set of sparse vector β with two values,
+                $\beta_1 = (1, 0)$ and another set of dense vector β with two values such as $\beta_2 = (1/\sqrt{2}, 1/\sqrt{2})$.
+            </p>
+
+            <p>
+                In the case of L2 regularization, $\beta_1$ and $\beta_2$ both have the same weight since the L2 norm of both of
+                them is the same:
+            </p>
+
+            <div class="equation">
+                $$||\beta_1||_2 = \sqrt{1^2 + 0^2} = 1$$
+                $$||\beta_2||_2 = \sqrt{(1/\sqrt{2})^2 + (1/\sqrt{2})^2} = 1$$
+            </div>
+
+            <p>
+                But when we look into the case of L1 regularization, if we look at the L1 norm of the $\beta_1$ (the sparse
+                vector), we find that it is less than that of $\beta_2$ (the dense vector):
+            </p>
+
+            <div class="equation">
+                $$||\beta_1||_1 = |1| + |0| = 1$$
+                $$||\beta_2||_1 = |1/\sqrt{2}| + |1/\sqrt{2}| = \frac{2}{\sqrt{2}} = \sqrt{2} \approx 1.414$$
+            </div>
+
+            <div class="key-point">
+                <p>
+                    <strong>What this tells us:</strong> L1 norm is less for sparse vector ($||\beta_1||_1 = 1$) as compared to that of
+                    the dense one ($||\beta_2||_1 = \sqrt{2}$). Hence, this shows that LASSO encourages zero coefficients.
+                </p>
+            </div>
+
+            <h2>Intuition 3: Observe This Beautiful Image</h2>
+
+            <p>
+                Here, we will look at the famous regularization diagram from Hastie's
+                <a href="https://web.stanford.edu/~hastie/Papers/ESLII.pdf" target="_blank">ESL</a>'s, page no 71.
+            </p>
+
+            <div class="figure-container">
+                <img src="https://miro.medium.com/v2/resize:fit:1228/format:webp/1*VyjsgGMEmJfqxc0kcDaCYA.png" alt="L1 and L2 Regularization">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 2:</span> Illustration of L1 and L2 regularization (ESL: page 71)
+                </p>
+            </div>
+
+            <p>
+                I had a really hard time understanding this figure until I came across
+                <a href="https://explained.ai/regularization/index.html" target="_blank">this</a> wonderful blog by
+                <a href="https://explained.ai" target="_blank">explained.ai</a>. I highly recommend you to look into that and
+                various other blogs from the same author available at the <a href="http://explained.ai" target="_blank">site</a>
+                as well. They are really much more intuitive and well explained.
+            </p>
+
+            <p>Let's look at the following two diagrams from the above-mentioned blogs:</p>
+
+            <div class="figure-container">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*gGb-vPk2sctWXdhRHGAYrA.png" alt="L1 vs L2 Comparison">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 3:</span> Remember that elliptical curves here are the curves for
+                    unconstrained cost function i.e. without any addition of L1 or L2 norms of the coefficients. The black dot
+                    at the center of the elliptical curve is the point where the value of cost function is 0 and as we move away
+                    from that black dot, its value increases, so higher cost curves are farther from the black dot
+                    (Source: explained.ai).
+                </p>
+            </div>
+
+            <p>
+                We see that the minimum cost in the case of the L1 is given by the <strong>purple dot</strong> at the diamond tip.
+                As we move on the edge of the diamond, we find ourselves to be moving away from the <strong>black dot</strong>
+                and hence there is a higher cost associated with it, for example, look at the <strong>yellow dot</strong> on the
+                edge of the diamond. Hence in the case of L1 or LASSO regression, it is more likely to find the optimal parameter
+                values at the tip of the diamond.
+            </p>
+
+            <p>
+                In contrast to this, let's look at the case of Ridge regression, i.e the L2 constrained circle; we see that the
+                optimal value of parameters is not on the axis since we get the minimum cost at the purple dot, which is away
+                from the axis. To be more clear, let's look at another figure from the same blog:
+            </p>
+
+            <div class="figure-container">
+                <img src="https://miro.medium.com/v2/resize:fit:950/format:webp/1*HmpYrhbz_rivr0cmSSvxLg.png" alt="Zoomed L1 L2">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 4:</span> Zoomed in figure showing the optimal parameters for L1 and L2
+                    regression at the purple point. Moving away from the L1 diamond point immediately increases loss, but L2 can
+                    move a little bit upwards before moving leftward away from the loss function minimum. (Source: explained.ai)
+                </p>
+            </div>
+
+            <h2>Intuition 4: Probabilistic Interpretation of L1 and L2</h2>
+
+            <p>
+                For this part, I assume that you know some basics of the Bayes Theorem. I will skip a lot of details here. For
+                more details, you can look into the answers to
+                <a href="https://stats.stackexchange.com/questions/163388/why-is-the-l2-regularization-equivalent-to-gaussian-prior" target="_blank">this</a>
+                cross-validated question and this wonderful
+                <a href="http://bjlkeng.github.io/posts/probabilistic-interpretation-of-regularization/" target="_blank">blog</a>
+                by Brian Keng.
+            </p>
+
+            <p>Maximum log-likelihood estimate for a linear regression model can be given by:</p>
+
+            <div class="equation">
+                $$\hat{\beta}_{MLE} = \arg\max_{\beta} \log P(y|X, \beta) = \arg\min_{\beta} \sum_{i=1}^{n}(y_i - \beta^T x_i)^2$$
+            </div>
+
+            <p>
+                We simply choose that β for which mean squared error between the observed value $y$ and predicted value $\hat{y}$
+                is minimum. With a simple modification to the above expression, the maximum log-likelihood estimate for L1 and L2
+                regression can be written as follows:
+            </p>
+
+            <div class="equation">
+                $$\hat{\beta}_{L2} = \arg\min_{\beta} \sum_{i=1}^{n}(y_i - \beta^T x_i)^2 + \lambda ||\beta||_2^2$$
+                $$\hat{\beta}_{L1} = \arg\min_{\beta} \sum_{i=1}^{n}(y_i - \beta^T x_i)^2 + \lambda ||\beta||_1$$
+            </div>
+
+            <p>Likelihood estimate for ordinary linear regression can also be given by following (when we do not consider log) equation:</p>
+
+            <div class="equation">
+                $$P(y|X, \beta) = \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - \beta^T x_i)^2}{2\sigma^2}\right)$$
+            </div>
+
+            <p>From <a href="https://en.wikipedia.org/wiki/Bayesian_inference#Formal" target="_blank">Bayes Theorem</a> we know that the <strong>posterior</strong>, is defined as follows:</p>
+
+            <div class="equation">
+                $$P(\beta|y) = \frac{P(y|\beta) \cdot P(\beta)}{P(y)}$$
+            </div>
+
+            <blockquote>
+                In case of Bayesian methods we are primarily concerned about the <strong>Posterior</strong>, i.e. the probability
+                distribution of parameter β given the observed data y in contrast to the classical methods where we try to find
+                the best parameters to maximize the <strong>likelihood</strong> i.e. the probability of observing data(y) given
+                different value of parameters.
+            </blockquote>
+
+            <p>Priors are simply some additional previous information about β before coming across the data y.</p>
+
+            <h3>The Maximum A Posteriori Probability Estimate (MAP)</h3>
+
+            <p>
+                In this case, we will try to maximize the $P(\beta|y)$, i.e. the posterior probability. MAP is closely related
+                to the MLE, but also includes prior distribution, therefore it acts as a regularization of MLE.
+            </p>
+
+            <div class="equation">
+                $$\hat{\beta}_{MAP} = \arg\max_{\beta} P(\beta|y) = \arg\max_{\beta} P(y|\beta) \cdot P(\beta)$$
+            </div>
+
+            <h3>L2 Regularization and Gaussian Prior</h3>
+
+            <p>
+                Consider a zero-mean normally distributed prior on each $\beta_i$ value, all with identical variance $\tau^2$:
+            </p>
+
+            <div class="equation">
+                $$P(\beta_i) = \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{\beta_i^2}{2\tau^2}\right)$$
+            </div>
+
+            <p>From the likelihood equation and the MAP estimate equation, we have:</p>
+
+            <div class="equation">
+                $$\hat{\beta}_{MAP} = \arg\max_{\beta} \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - \beta^T x_i)^2}{2\sigma^2}\right) \cdot \prod_{j=1}^{p} \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{\beta_j^2}{2\tau^2}\right)$$
+                $$= \arg\min_{\beta} \sum_{i=1}^{n}(y_i - \beta^T x_i)^2 + \frac{\sigma^2}{\tau^2} ||\beta||_2^2$$
+            </div>
+
+            <div class="key-point">
+                <p>
+                    <strong>The connection:</strong> Thus, we see that the MAP estimate of Linear Regression coefficients with
+                    Gaussian priors gives us L2 or Ridge Regression. Note that $\lambda = \sigma^2/\tau^2$ in the above equations.
+                </p>
+            </div>
+
+            <h3>L1 Regularization and Laplacian Prior</h3>
+
+            <p>The probability distribution function for Laplace distribution is given by the following equation:</p>
+
+            <div class="equation">
+                $$P(\beta_i) = \frac{1}{2b} \exp\left(-\frac{|\beta_i|}{b}\right)$$
+            </div>
+
+            <p>Considering the zero mean Laplacian priors on all the coefficients as we did in the previous section, we have:</p>
+
+            <div class="equation">
+                $$\hat{\beta}_{MAP} = \arg\max_{\beta} \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - \beta^T x_i)^2}{2\sigma^2}\right) \cdot \prod_{j=1}^{p} \frac{1}{2b} \exp\left(-\frac{|\beta_j|}{b}\right)$$
+                $$= \arg\min_{\beta} \sum_{i=1}^{n}(y_i - \beta^T x_i)^2 + \frac{\sigma^2}{b} ||\beta||_1$$
+            </div>
+
+            <div class="key-point">
+                <p>
+                    <strong>Similarly:</strong> Again, we see that MAP of Linear Regression coefficients with Laplacian priors
+                    gives us L1 or Lasso Regression.
+                </p>
+            </div>
+
+            <div class="figure-container">
+                <img src="https://miro.medium.com/v2/resize:fit:928/format:webp/0*17UpawN2lk1tN1ff.png" alt="Laplace vs Gaussian">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 5:</span> Laplace and Gaussian Distribution (Source: Cross Validated)
+                </p>
+            </div>
+
+            <p>
+                Look at the above graph for the Gaussian and Laplace distribution. As we discussed earlier that L1 or LASSO
+                regression can be viewed as putting Laplace priors on the weights. Since the Laplace distribution is more
+                concentrated around zero, our weight is more likely to be zero in the case of L1 or LASSO regularization.
+            </p>
+
+            <h2>Summary</h2>
+
+            <ul>
+                <li>L1 or LASSO (Least Absolute Shrinkage and Selection Operator) Regularization supports both variable selection
+                    and regularization simultaneously.</li>
+                <li>Both L1 and L2 regularization problems can be solved using the Lagrangian method of constrained optimization.</li>
+                <li>The lasso penalty will force some of the coefficients quickly to zero. This means that variables are removed
+                    from the model, hence the sparsity.</li>
+                <li>Ridge regression will more or less compress the coefficients to become smaller. This does not necessarily
+                    result in 0 coefficients and the removal of variables.</li>
+            </ul>
+
+            <h3>References</h3>
+
+            <ol>
+                <li><a href="https://towardsdatascience.com/intuitions-on-l1-and-l2-regularisation-235f2db4c261" target="_blank">Intuitions on L1 and L2 Regularization</a></li>
+                <li><a href="https://stats.stackexchange.com/questions/4961/what-is-regularization-in-plain-english" target="_blank">What is regularization in plain English?</a></li>
+                <li><a href="https://youtu.be/QNxNCgtWSaY" target="_blank">L1 and L2 Regularization</a></li>
+                <li><a href="https://explained.ai/regularization/L1vsL2.html" target="_blank">The difference between L1 and L2 Regularization</a></li>
+                <li><a href="https://stats.stackexchange.com/questions/74542/why-does-the-lasso-provide-variable-selection" target="_blank">Why does the lasso provide variable selection?</a></li>
+                <li><a href="https://web.stanford.edu/~hastie/Papers/ESLII.pdf" target="_blank">Hastie, Tibshirani and Friedman, The Elements of Statistical Learning</a></li>
+                <li>Machine Learning: A Probabilistic Perspective, Kevin P. Murphy</li>
+                <li><a href="https://stats.stackexchange.com/questions/176599/why-will-ridge-regression-not-shrink-some-coefficients-to-zero-like-lasso" target="_blank">Why will ridge regression not shrink some coefficients to zero like lasso?</a></li>
+                <li><a href="https://stats.stackexchange.com/questions/163388/why-is-the-l2-regularization-equivalent-to-gaussian-prior" target="_blank">Why is the L2 regularization equivalent to Gaussian prior?</a></li>
+                <li><a href="http://bjlkeng.github.io/posts/probabilistic-interpretation-of-regularization/" target="_blank">A Probabilistic Interpretation of Regularization</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Overfitting" target="_blank">Overfitting — Wikipedia</a></li>
+            </ol>
+        </article>
+
+        <footer>
+            <p>© 2026 Mukul Ranjan</p>
+        </footer>
+    </div>
+
+    <script data-goatcounter="https://mukulranjan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

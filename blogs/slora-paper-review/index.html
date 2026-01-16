@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-LoRA: Serving Thousands of Concurrent LoRA Adapters</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2a2a2a;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5em auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+        }
+
+        .equation {
+            margin: 1.5em 0;
+            padding: 1em;
+            background-color: #f9f9f9;
+            border-left: 3px solid #4CAF50;
+            overflow-x: auto;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 1em;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .meta {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 0.5em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1em;
+            color: #0066cc;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        footer {
+            margin-top: 3em;
+            padding-top: 1em;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../ml-blogs.html" class="back-link">← Back to ML Blogs</a>
+
+        <header>
+            <h1>Serving Thousands of Concurrent LoRA Adapters</h1>
+            <p class="subtitle">[Paper Review] S-LoRA: Serving Thousands of Concurrent LoRA Adapters</p>
+            <p class="meta">January 2026 · 9 min read</p>
+        </header>
+
+        <article>
+            <p>
+                Low Rank Adaptation (LoRA) is very often used to efficiently finetune a base model for deployment across
+                different tasks. This results in a huge collection of LoRA adapters from a single base model. One major use
+                case for this can be seen in recommender systems. For example, say you train a foundation model for user
+                modeling and you want to use this for different segments of users. The most straightforward solution is to
+                train an adapter for each cohort of users. This will result in thousands of adapters and efficient serving
+                becomes critical in that case.
+            </p>
+
+            <p>
+                S-LoRA paper solves the problem of efficient serving when you have thousands of adapters from the same base model.
+            </p>
+
+            <h3>TLDR and Contributions</h3>
+
+            <p>
+                This paper presents a system for the scalable serving of many task-specific fine-tuned LoRA adapters. It
+                stores all the adapters in the main memory and fetches the adapters used by the currently running queries to
+                the GPU memory. It proposes, 1.) <strong>Unified Paging</strong> to efficiently use GPU memory and reduce
+                fragmentation and 2.) <strong>a new tensor parallelism strategy (S-LoRA TP)</strong> and
+                <strong>optimised custom CUDA kernel</strong> for heterogeneous batching of LoRA computation. Contributions
+                can be summarised as below:
+            </p>
+
+            <ol>
+                <li><strong>Heterogeneous Batching and Scheduling</strong>: Introduces optimised CUDA kernels to
+                    <strong>operate directly on non-contiguous memory,</strong> in order to batch <em>different adapters of
+                    varying rank.</em></li>
+                <li><strong>Unified Paging</strong>: Introduces <strong>unified memory pool</strong> to reduce
+                    <strong>memory fragmentation and increase batch size</strong>. The pool manages dynamic adaptor weights
+                    and KV cache tensors by <strong>unified paging mechanism</strong>.</li>
+                <li><strong>S-LoRA TP</strong>: Introduces a new <strong>tensor parallel</strong> strategy <em>across
+                    multiple GPUs</em>, to ensure that it incurs minimal communication cost for added LoRA communication
+                    compared to base model.</li>
+            </ol>
+
+            <h3>Preliminary</h3>
+
+            <p>
+                Here, I would assume that you are aware of LoRA so I won't go in too much detail. LoRA is a parameter-efficient
+                fine-tuning method designed to adapt pre-trained large language models to new task. The motivation behind LoRA
+                comes from the <strong>low intrinsic dimensionality of model update during adaptation
+                (<a href="https://aclanthology.org/2021.acl-long.568.pdf" target="_blank">another interesting paper</a>).</strong>
+                In the training phase LoRA freezes the weight of pre-trained base model and adds <em>trainable low-rank matrices
+                to each layer</em>.
+            </p>
+
+            <img src="https://miro.medium.com/v2/resize:fit:832/format:webp/1*cpoY9ktTsZRDUZRsUpuBpA.png" alt="LoRA Reparametrization">
+            <p class="figure-caption">
+                Figure 1: Reparametrization of the LoRA. Only A and B are trained and the weight of pre-trained base model W
+                is kept frozen.(source)
+            </p>
+
+            <p>
+                Formally, for a pre-trained weight matrix <strong>W₀</strong> ∈ <strong>ℝ</strong><sup>h × d</sup>, LoRA
+                introduces a low-rank update <strong>∆W</strong> = <strong>AB</strong>, where <strong>A</strong> ∈
+                <strong>ℝ</strong><sup>h × r</sup>, <strong>B</strong> ∈ <strong>ℝ</strong><sup>r × d</sup>, and the rank
+                <em>r</em> ≪ min(<em>h</em>, <em>d</em>) and hence the update become <strong>W = W₀ + ∆W = W₀ + AB.</strong>
+                If the forward pass of a base model is defined by <em>h</em> = <em>x</em><strong>W₀</strong>, then after
+                applying LoRA, the forward pass becomes:
+            </p>
+
+            <div class="equation">
+                $$h = x(W_0 + \Delta W) = x(W_0 + AB)$$
+                $$= xW_0 + xAB$$
+            </div>
+
+            <p>
+                Typically, this adjustment is only applied to the query, key, value, and output projection matrices in the
+                self-attention module, and excludes the feed-forward module.
+            </p>
+
+            <h2>Heterogeneous Batching and Scheduling</h2>
+
+            <h3>The Batching Challenge</h3>
+
+            <p>
+                The paper's batching strategy enables online high-throughput serving of multiple LoRA adapters simultaneously.
+                The original LoRA paper suggests <em>to merge the weight into the base model (equation 1)</em>. This leads to
+                no additional overhead during the inference since the <em>resulting model has the same parameters count as the
+                base models</em>.
+            </p>
+
+            <p>
+                <strong>However, when serving multiple adapters</strong> this creates problems of multiple weight copy of the
+                same model, consuming excessive memory. While the LoRA paper propose adding and subtracting adapter weights
+                on-the-fly to avoid memory overhead, <em>this approach doesn't support concurrent inference on separate LoRA
+                adapters and therefore limiting batching opportunities</em>.
+            </p>
+
+            <h3>S-LoRA's Solution</h3>
+
+            <p>
+                S-LoRA proposes LoRA computation <strong>xAB</strong> on-the-fly (equation 2) rather than merging weight. This
+                eliminates duplication and enables batching of the more costly <strong>xW₀</strong> operation. While this adds
+                an additional overhead of <strong>xAB</strong> computation, this computation is substantially lower than
+                <strong>xW₀</strong> and the savings from batching the base model computation more than compensate for it.
+            </p>
+
+            <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*18j1TjsSDORKX-KMMn5PUw.png" alt="Batched Computation">
+            <p class="figure-caption">
+                Figure 2: Separated batched computation for the base model and LoRA computation. The batched computation of the
+                base model is implemented by GEMM. The batched computation for LoRA adapters is implemented by custom CUDA
+                kernels which support batching various sequence lengths and adapter ranks. (source)
+            </p>
+
+            <h3>Custom CUDA Kernels</h3>
+
+            <p>
+                Directly implementing the factored computation of the base model and individual LoRA adapters using the batch
+                GEMM kernel from the existing BLAS libraries would require significant padding due to <em>the heterogeneity of
+                sequence lengths and adapter ranks</em> resulting in poor hardware utilization.
+            </p>
+
+            <p>
+                Instead, S-LoRA batches the computation of the base model <strong>xW₀</strong> and then uses custom CUDA
+                kernels to efficiently compute <strong>xAB</strong> for each adapter separately without padding (see
+                <strong>Figure 2</strong>). This custom implementation achieves much better performance than naive batched
+                approaches.
+            </p>
+
+            <h3>Memory Management Strategy</h3>
+
+            <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*LamQPYQFuX9-1iMxId22Xw.png" alt="Memory Allocation">
+            <p class="figure-caption">
+                Figure 3: Overview of memory allocation in S-LoRA. S-LoRA stores all adapters in the main memory and fetches
+                the active adapters for the current batch to the GPU memory. The GPU memory is used to store the KV cache,
+                adapter weights, base model weights, and other temporary tensors (source).
+            </p>
+
+            <p>
+                While the total number of LoRA adapters can be large, only a subset is needed for any given batch, and
+                <em>the batch size itself is constrained by GPU memory.</em> <strong>S-LoRA exploits this by storing all
+                adapters in main memory (RAM)</strong> and dynamically loading only the adapters required for the current batch
+                onto the GPU. <em>This means the system's adapter capacity is bounded by main memory rather than GPU memory,
+                enabling it to serve thousands of adapters.</em>
+            </p>
+
+            <h3>Token-Level Scheduling</h3>
+
+            <p>
+                To maximize throughput, S-LoRA adopts iteration-level scheduling from
+                <a href="https://www.usenix.org/system/files/osdi22-yu.pdf" target="_blank">Orca</a>, where <em>requests are
+                scheduled at the token level rather than the sequence level.</em> New requests are immediately added to the
+                running batch whenever space becomes available, and requests exit the batch once they complete generation or
+                meet stopping criteria. This approach significantly reduces GPU memory usage compared to traditional batching,
+                but introduces new memory management challenges that we will discuss later.
+            </p>
+
+            <h3>Adapter Clustering</h3>
+
+            <p>
+                To further improve batching efficiency, <strong>S-LoRA can reduce the number of active adapters in a running
+                batch</strong>. With fewer adapters consuming memory, more space becomes available for the KV cache, enabling
+                larger batch sizes. <em>Since GPUs are often underutilized during the decoding phase, increasing batch size
+                directly translates to higher throughput</em>. A straightforward way to reduce active adapters is through
+                <strong>"adapter clustering"</strong>, <strong>prioritizing requests that use the same adapter when forming
+                batches.</strong> However, this comes with trade-offs: it can increase average latency and create fairness
+                issues, as some adapters may be prioritized over others.
+            </p>
+
+            <h3>Admission Control</h3>
+
+            <p>
+                When traffic exceeds system capacity, S-LoRA employs admission control to maintain service quality. Serving
+                systems typically operate under a <em>service level objective (SLO)</em> that specifies target latency. Without
+                admission control, an overloaded system will eventually violate its SLO for all requests as the queue grows
+                unbounded. S-LoRA implements an <strong>"early abort" strategy: it estimates which recent requests can be served
+                within the SLO and processes them in arrival order, dropping requests that cannot meet the latency
+                requirement.</strong> This ensures the system maintains its SLO for accepted requests even under high load.
+            </p>
+
+            <h2>Unified Paging and Memory Management</h2>
+
+            <p>
+                Serving multiple LoRA adapters introduces unique memory challenges. <strong>S-LoRA stores adapters in main
+                memory (RAM) and dynamically loads them to GPU RAM as needed.</strong> This creates two key problems:
+            </p>
+
+            <ol>
+                <li><strong>Memory fragmentation</strong> from loading and unloading adapters of varying sizes</li>
+                <li><strong>I/O latency overhead</strong> when transferring adapters between main memory and GPU</li>
+            </ol>
+
+            <p>
+                S-LoRA addresses these through <strong>Unified Paging and intelligent prefetching</strong>.
+            </p>
+
+            <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*Mh3ErlnhF4LBNRpI67Cjkw.png" alt="Unified Memory Pool">
+            <p class="figure-caption">
+                Figure 4: Unified memory pool. We use a unified memory pool to store both KV caches and adapter weights in a
+                non-contiguous way to reduce memory fragmentation. The page size is H elements.
+            </p>
+
+            <h3>Unified Paging</h3>
+
+            <p>
+                The key observation: adapter weights behave similarly to KV caches.
+            </p>
+
+            <p><strong>Similarities between adapter weights and KV caches:</strong></p>
+
+            <ul>
+                <li><strong>Variable sizes</strong>: KV cache size varies with sequence length; adapter sizes vary with rank.
+                    Both are allocated on request arrival and deallocated on completion, leading to fragmentation if
+                    mismanaged.</li>
+                <li><strong>Shared dimensionality</strong>: KV cache tensors have shape (S, H) where S is sequence length and
+                    H is hidden dimension. LoRA weights have shape (R, H) where R is rank. Both share the H dimension, which
+                    we can exploit.</li>
+            </ul>
+
+            <p>
+                Inspired by <a href="https://arxiv.org/abs/2309.06180" target="_blank">PagedAttention</a>, S-LoRA introduces
+                <strong>Unified Paging, <em>a single memory pool managing both KV caches and adapter weights</em></strong>.
+            </p>
+
+            <p><strong>Algorithm</strong></p>
+
+            <ol>
+                <li>Allocate a large static buffer using all available space (excluding base model weights and temporary
+                    activations)</li>
+                <li>Store both KV caches and adapter weights in pages of size H</li>
+                <li>A KV cache with sequence length S uses S pages; a LoRA weight with rank R uses R pages</li>
+                <li>KV caches and adapter weights are stored interleaved and non-contiguously (Figure 4)</li>
+            </ol>
+
+            <p>
+                This reduces fragmentation, allowing adapters of various ranks to coexist with dynamic KV caches efficiently.
+            </p>
+
+            <h3>Prefetching and Overlapping</h3>
+
+            <p>
+                While Unified Paging solves fragmentation, I/O overhead remains, especially with many or large adapters. S-LoRA
+                addresses this through <strong>dynamic prediction.</strong>
+            </p>
+
+            <ol>
+                <li>While processing the current batch, predict which adapters are needed next based on the waiting queue.</li>
+                <li>Prefetch and load predicted adapters into available memory.</li>
+                <li>By the time the next batch runs, most required adapters are already loaded, minimizing I/O latency</li>
+            </ol>
+
+            <h3>Custom CUDA Kernels</h3>
+
+            <p>
+                The non-contiguous memory layout requires specialized computation kernels. <strong>S-LoRA implements custom
+                CUDA kernels that efficiently handle heterogeneous LoRA batching across varying ranks and sequence
+                lengths</strong>:
+            </p>
+
+            <p>
+                <strong>Prefill stage</strong> (processing sequences): At this stage kernel handles a sequence of tokens and
+                gathers adapter weight with different rank from the memory pool. This kernel is called <strong>MBGMM</strong>
+                (Multi-size Batched Gather Matrix-Matrix Multiplication) kernel.
+            </p>
+
+            <p>
+                <strong>Decode stage</strong> (processing single tokens): At this stage the kernel handles a single token and
+                gather adapter weights with different rank from the memory pool. It is called <strong>MBGMV</strong>
+                (Multi-size Batched Gather Matrix-Vector Multiplication) kernel. The paper tested two implementations: Triton
+                and modified Punica kernels. Modified Punica version was faster, supporting non-contiguous memory, multiple
+                ranks per batch, and fine-grained memory gathering
+            </p>
+
+            <h2>S-LoRA Tensor Parallelism</h2>
+
+            <p>
+                To support multi-GPU inference of large transformer models with batched LoRA adapters, S-LoRA introduces novel
+                tensor parallelism strategies. Tensor parallelism is the most widely used parallelism method due to its
+                <strong>single-program multiple-data (SPMD)</strong> pattern, which simplifies implementation and integration.
+                It reduces per-GPU memory usage and latency when serving large models. However, LoRA adapters introduce new
+                weight matrices and matrix multiplications that require careful partitioning strategies.
+            </p>
+
+            <h3>Partition Strategy</h3>
+
+            <p>
+                The base model uses the Megatron-LM tensor parallelism strategy, so S-LoRA's approach aligns the partition
+                strategies of the added LoRA computation with those of the base model. This alignment minimizes communication
+                costs by avoiding unnecessary data transfers and enabling communication fusion.
+            </p>
+
+            <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*K4DlyL9K4WxCNYLR7S8TrQ.png" alt="Tensor Parallelism">
+            <p class="figure-caption">
+                Figure 5: Tensor parallelism partition strategy for batched LoRA computation. This is a computational graph
+                where nodes represent tensors/operators and the edges represent dependency. We use different colors to
+                represent different partition strategies, which include column partition, row partition, partial sum, and
+                replication. The per-GPU shape of each tensor is also annotated in gray. Note that B is the number of tokens, h
+                is the input dimension, N is the number of devices, d is the hidden size, and r is the adapter rank (source).
+            </p>
+
+            <p><strong>Base Model Partitioning (Megatron-LM):</strong></p>
+
+            <p>Let's examine the feed-forward module (2-layer MLP) shown in Figure 5:</p>
+
+            <ul>
+                <li>First weight matrix (W₁): column-partitioned</li>
+                <li>Second weight matrix (W₂): row-partitioned</li>
+                <li>Final step: all-reduce operation to accumulate partial sums</li>
+            </ul>
+
+            <p><strong>LoRA Adapter Partitioning:</strong></p>
+
+            <p>For adapters on W₁ (matrices A₁ and B₁):</p>
+
+            <ul>
+                <li>Both A₁ and B₁: column-partitioned</li>
+                <li>Intermediate results: collected via all-gather operation</li>
+            </ul>
+
+            <p>For adapters on W₂ (matrices A₂ and B₂):</p>
+
+            <ul>
+                <li>A₂: row-partitioned</li>
+                <li>B₂: column-partitioned</li>
+                <li>Intermediate results: summed via all-reduce operation</li>
+            </ul>
+
+            <p>
+                <strong>Optimization:</strong> The all-reduce for LoRA computation is fused with the base model's final
+                all-reduce. Instead of two separate all-reduce calls, S-LoRA performs just one, <strong>essentially fusing an
+                all-gather operation for the final LoRA matrix multiplication with the base model's reduction</strong>.
+            </p>
+
+            <p><strong>Extension to self-attention layers:</strong> The strategy adapts naturally by partitioning along the
+                head dimension (following Megatron-LM):</p>
+
+            <ul>
+                <li>Query-key-value projection weight matrix → treated as W₁</li>
+                <li>Output projection weight matrix → treated as W₂</li>
+            </ul>
+
+            <h3>Communication and Memory Analysis</h3>
+
+            <p>Given N devices, B tokens, hidden size h, and adapter rank r:</p>
+
+            <ul>
+                <li><strong>Base model:</strong> One all-reduce = $2(N-1)Bh/N$</li>
+                <li><strong>LoRA computation:</strong> Three all-gather (Q, K, V) + one all-reduce (output) = $5(N-1)Br/N$</li>
+            </ul>
+
+            <p>
+                <strong>Why this is efficient:</strong> Since $r \ll h$ (adapter rank is much smaller than hidden size), the
+                additional communication cost from LoRA is negligible. This is achieved by:
+            </p>
+
+            <ul>
+                <li>Carefully scheduling communications on small intermediate LoRA tensors</li>
+                <li>Fusing LoRA operations with base model communications</li>
+            </ul>
+
+            <p>
+                <strong>Memory usage:</strong> This strategy is optimal, all weight matrices are partitioned across devices
+                with zero replication, maximizing memory efficiency.
+            </p>
+
+            <h2>Reference</h2>
+
+            <ol>
+                <li><a href="https://arxiv.org/abs/2311.03285" target="_blank">S-LoRA: Serving Thousands of Concurrent LoRA Adapters</a></li>
+                <li><a href="https://arxiv.org/abs/2106.09685" target="_blank">LoRA: Low-Rank Adaptation of Large Language Models</a></li>
+                <li><a href="https://aclanthology.org/2021.acl-long.568.pdf" target="_blank">Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning</a></li>
+                <li><a href="https://www.usenix.org/system/files/osdi22-yu.pdf" target="_blank">ORCA: A Distributed Serving System for Transformer-Based Generative Models</a></li>
+                <li><a href="https://arxiv.org/pdf/2309.06180" target="_blank">Efficient Memory Management for Large Language Model Serving with PagedAttention</a></li>
+            </ol>
+        </article>
+
+        <footer>
+            <p>© 2026 Mukul Ranjan</p>
+        </footer>
+    </div>
+
+    <script data-goatcounter="https://mukulranjan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

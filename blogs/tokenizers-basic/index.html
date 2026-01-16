@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenizers in Large Language Models: Byte Pair Encoding and Beyond</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2a2a2a;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #3a3a3a;
+        }
+
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5em auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 1.2em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.5em;
+            border: 1px solid #e0e0e0;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.85em;
+            color: #2d3748;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .meta {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 0.5em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1em;
+            color: #0066cc;
+        }
+
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .code-output {
+            background-color: #f0f4f8;
+            border-left: 3px solid #4CAF50;
+            padding: 0.8em;
+            margin: 1em 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            word-wrap: break-word;
+        }
+
+        .token-list {
+            background-color: #fff3cd;
+            padding: 0.8em;
+            margin: 1em 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            word-wrap: break-word;
+            border: 1px solid #ffc107;
+        }
+
+        .figure-container {
+            margin: 2em 0;
+        }
+
+        .figure-container.small img {
+            max-width: 70%;
+        }
+
+        .figure-number {
+            font-weight: 600;
+            color: #2a2a2a;
+        }
+
+        .example-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 1.2em;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+
+        .example-box p {
+            margin-bottom: 0.8em;
+        }
+
+        .example-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .step {
+            background-color: #e7f3ff;
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #1976D2;
+            margin-bottom: 0.5em;
+        }
+
+        .vocab-display {
+            background-color: #f0f4f8;
+            padding: 0.5em 1em;
+            margin: 0.5em 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        footer {
+            margin-top: 3em;
+            padding-top: 1em;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../ml-blogs.html" class="back-link">← Back to ML Blogs</a>
+
+        <header>
+            <h1>Tokenizers in Large Language Models: Byte Pair Encoding and Beyond</h1>
+            <p class="meta">January 2026 · 14 min read</p>
+        </header>
+
+        <article>
+            <p>
+                This is the first part of the blogpost series about the tokenization in Language Models.
+            </p>
+
+            <p>
+                If you have seen Karpathy Sensei's video[1], you must be aware of the fact that tokenizer is one of the most
+                "<em>problematically important</em>" concept in NLP. The video is probably the best explanation available on
+                internet for understanding tokenization. Tokens are the most fundamental unit of large language models. LLMs
+                don't see the word like we do but they are fed these words in different way, called 'tokens'. Different
+                tokenization methods are used in different open and closed source large language models.
+            </p>
+
+            <p>Figure below shows the rough high level block diagram of a language model depicting tokenization in it:</p>
+
+            <div class="figure-container small">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*L5LwK_jcapBpj1m2JqcCbg.png" alt="Language Model Diagram">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 1:</span> A high level rough block diagram of a language model depicting tokenization. Note that output logits will have
+                    probability score over entire vocabulary, not for input token. Note than tokenizer is a separate module and it
+                    has their own training data. LLMs only sees the tokens and never directly deals with the texts.
+                </p>
+            </div>
+
+            <h2>Tokenization</h2>
+
+            <p>
+                Tokenization is the process of converting texts data into token :') . Tokens are the most fundamental unit of
+                large language models. When we use large language models, it first converts our input texts/images/videos into
+                some fundamental unit that we call tokens. The process of this conversion from input texts to token is called
+                tokenization. When you write on ChatGPT, "write an ode on the end of universe.", it first converts your input
+                into this format:
+            </p>
+
+            <div class="code-output">
+                &lt;|im_start|&gt;system&lt;|im_sep|&gt;write an ode on the end of universe.&lt;|im_end|&gt;&lt;|im_start|&gt;assistant&lt;|im_sep|&gt;
+            </div>
+
+            <p>Which is then converted to the following numerical sequence:</p>
+
+            <div class="token-list">
+                [200264, 17360, 200266, 9566, 448, 58840, 402, 290, 1268, 328, 28714, 13, 200265, 200264, 173781, 200266]
+            </div>
+
+            <p>
+                You can use this website (<a href="https://tiktokenizer.vercel.app/" target="_blank">https://tiktokenizer.vercel.app/</a>)
+                to play with different input text. In this blog we will learn how does this convert from text sequence to
+                numerical sequence happens.
+            </p>
+
+            <p>
+                There are several methods, one of the most basic one is to use it in same way that a python code process the
+                string, in the raw byte form. Just use "utf-8" encoding of the input and then we are done. But, we don't!!!
+                Why not we just use "utf-8" encoding?
+            </p>
+
+            <ol>
+                <li>The vocabulary size is will be fixed (256 unique byte values). Isn't that a good thing??</li>
+                <li>This will allow us to have smaller input embedding table and prediction at the final layer. Another good thing??</li>
+                <li>It will require modeling all possible byte combinations for meaningful language patterns and make
+                    <strong>our input sequences very very long</strong>.</li>
+                <li>Because of this reason, <strong>transformer input layer will need to process much longer input context,
+                    which is not computationally efficient for attention based models</strong>. Remember??, OpenAI charges you
+                    based on no of input tokens if we use 'utf-8', our api cost will become much much larger.</li>
+                <li>Also, 'utf-8' does not have any semantic understanding. For example it treats the word "unhappiness" as 11
+                    completely separate characters and doesn't recognize that this word contains meaningful subparts: "un-"
+                    (prefix), "happy" (root), "-ness" (suffix). Model will need more data to understand semantic representation
+                    if directly use utf-8 encoding.</li>
+                <li>Many predictions in language depend on previous <em>words</em> or even <em>syntactic phrases</em>, and
+                    focusing on individual characters/bytes is so low-level that it makes it more challenging to learn about
+                    those higher levels of abstraction[10].</li>
+            </ol>
+
+            <p>
+                For example Japanese word for Good Morning, Ohayou gozaimasu, "おはようございます", will be converted into 27
+                different tokens using 'utf-8' encoding:
+            </p>
+
+            <div class="token-list">
+                [227, 129, 138, 227, 129, 175, 227, 130, 136, 227, 129, 134, 227, 129, 148, 227, 129, 150, 227, 129, 132, 227, 129, 190, 227, 129, 153]
+            </div>
+
+            <p>
+                However if we use current GPT-4o tokenizer it will just use 4 tokens:
+            </p>
+
+            <div class="token-list">
+                [8930, 5205, 72683, 59809]
+            </div>
+
+            <p>
+                This provides <strong>almost 7x compression in the input token size</strong>.
+            </p>
+
+            <p>
+                Therefore, we need to find some other way to encode our data which is more efficient than simple byte encoding
+                like 'utf-8'. Then, why don't we use each word as a separate token???
+            </p>
+
+            <p>
+                If we use word based tokenizations, it is <strong>practically impossible</strong> to create a dictionary of all
+                the words in human history. Hence, word level tokenization will almost always have out of vocabulary problems
+                and multi-linguality might become a distant dream for those types of model. Whenever we come up with new words
+                and use that word to ask something from our model, it will throw an error.
+            </p>
+
+            <p>
+                One set of method to solve both of these problems is called <strong>subword based tokenization</strong> which is
+                being used in all the modern language models. Subword based tokenization solves both of these problems by
+                allowing words to be decomposed into subwords and bringing the best of these world. Byte Pair Encoding is one
+                of the example of <strong>subword based tokenization.</strong>
+            </p>
+
+            <h2>Byte Pair Encoding</h2>
+
+            <p>
+                BPE is one of the most common subword based tokenization. It works by replacing the <strong>highest-frequency
+                pair of bytes</strong> with a new byte that was not there in the initial vocabulary. By design, it keeps more
+                frequent words intact in the vocabulary and breaks down less frequent words. Let's understand this with an
+                example from the <a href="https://en.wikipedia.org/wiki/Byte-pair_encoding" target="_blank">Wikipedia article</a>:
+            </p>
+
+            <div class="example-box">
+                <p><strong>Initial Setup:</strong></p>
+                <p>Data: <span class="vocab-display">aaabdaaabac</span></p>
+                <p>Characters: <span class="vocab-display">{a, b, c, d}</span></p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Step 1: Find Most Frequent Pair</div>
+                <p>Pairs of bytes: <code>[aa, aa, ab, bd, da, aa, aa, ab, ba, ac]</code></p>
+                <p><strong>"aa"</strong> occurs 4 times (most frequent)</p>
+                <p>Replace "aa" with "Z" → Result: <span class="vocab-display">ZabdZabac</span></p>
+                <p>Updated vocabulary: <span class="vocab-display">{"aa", "a", "b", "c", "d"}</span></p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Step 2: Find Next Most Frequent Pair</div>
+                <p>Updated pairs: <code>[Za, ab, bd, dZ, Za, ab, ba, ac]</code></p>
+                <p><strong>"ab"</strong> occurs 2 times</p>
+                <p>Replace "ab" with "Y" → Result: <span class="vocab-display">ZYdZYac</span></p>
+                <p>Updated vocabulary: <span class="vocab-display">{"aa", "ab", "a", "b", "c", "d"}</span></p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Step 3: Continue Merging</div>
+                <p>Updated pairs: <code>[ZY, Yd, dZ, ZY, Ya, ac]</code></p>
+                <p><strong>"ZY"</strong> (which represents "aaab") occurs 2 times</p>
+                <p>Replace "ZY" with "X" → Final Result: <span class="vocab-display">XdXac</span></p>
+                <p>Final vocabulary: <span class="vocab-display">{"aaab", "aa", "ab", "a", "b", "c", "d"}</span></p>
+            </div>
+
+            <div class="example-box">
+                <p><strong>Insight:</strong> We can no longer create pairs with frequency > 1, so the algorithm stops.</p>
+                <p>The original string <code>aaabdaaabac</code> (11 characters) is now represented as <code>XdXac</code> (5 tokens).</p>
+            </div>
+
+            <blockquote>
+                <strong>Note:</strong> This example uses "byte" and "character" interchangeably for simplicity. BPE has two
+                variants: character-level BPE and Byte-level BPE [12, 14]. Byte-level BPE converts data into byte sequences
+                and applies the same merging logic.
+            </blockquote>
+
+            <pre><code>text = "まいにち まいにち ぼくらはてっぱんの
+うえで やかれて いやになっちゃうよ
+あるあさ ぼくは みせのおじさんと
+けんかして うみに にげこんだのさ
+はじめて およいだ うみのそこ
+とっても きもちが いいもんだ
+おなかの あんこが おもいけど
+うみは ひろいぜ こころがはずむ
+ももいろ サンゴが てをふって
+ぼくの およぎを ながめていたよ
+まいにち まいにち たのしいことばかり
+なんぱせんが ぼくのすみかさ
+ときどき サメに いじめられるけど
+そんなときゃ そうさ にげるのさ
+いちにち およげば はらぺこさ
+めだまも くるくる まわっちゃう
+たまには エビでも くわなけりゃ
+しおみず ばかりじゃ ふやけてしまう
+いわばの かげから くいつけば
+それは ちいさな つりばりだった
+どんなに どんなに もがいても
+ハリが のどから とれないよ
+はまべで みしらぬ おじさんが
+ぼくを つりあげ びっくりしてた
+やっぱり ぼくは たいやきさ
+すこし こげある たいやきさ
+おじさん つばを のみこんで
+ぼくを うまそうに たべたのさ"
+tokens = text.encode("utf-8")
+tokens = list(map(int, tokens))
+print('---')
+print(tokens)
+print(len(token)) # 1245
+# [10,227,129,190,227,129,132,227,129,171,227,129,161,32,227,...]</code></pre>
+
+            <p>
+                The above code simply convert any text into "utf-8" encoding. We can now use the logic discussed above to write
+                the code for BPE. Most of these code are from Karpathy Sensei's video and colab notebook. We used the lyrics of
+                Japanese song '<a href="https://en.wikipedia.org/wiki/Oyoge!_Taiyaki-kun" target="_blank">Oyoge! Taiyaki Kun</a>'
+                and got a total of 1245 tokens using 'utf-8' encoding.
+            </p>
+
+            <ol>
+                <li>Get the stats of each byte pair available in the dataset. Like we did in the wikipedia example and sort it
+                    in the reverse order of token pair counts.</li>
+            </ol>
+
+            <pre><code>def get_stats(ids: list) -> dict:
+    """
+    Calculate frequencies of adjacent token pairs in a sequence.
+    Args:
+        ids (list): A list of token IDs to analyze.
+    Returns:
+        dict: A dictionary mapping token pairs (tuples) to their frequencies.
+
+    Example:
+        >>> get_stats([65, 66, 65, 66, 67])
+        {(65, 66): 2, (66, 65): 1, (66, 67): 1}
+    """
+    counts = {}
+    # Use zip to create pairs of adjacent tokens
+    # ids[1:] creates a shifted copy, so zip creates adjacent pairs
+    for pair in zip(ids, ids[1:]):
+        # Increment count for this pair, defaulting to 0 if not seen before
+        counts[pair] = counts.get(pair, 0) + 1
+    return counts
+
+stats = get_stats(tokens)
+print(sorted(((v,k) for k,v in stats.items()), reverse=True))</code></pre>
+
+            <div class="code-output">
+                # Output:
+                [(297, (227, 129)), (85, (227, 130)), (55, (32, 227)), (28, (132, 227)), (28, (10, 227)), ...]
+            </div>
+
+            <ol start="2">
+                <li>Now, let's see the code for the merge operation. Merge operation will merge token pairs into a single new
+                    token like in the wikipedia example we replaced, 'aa' with 'Z'; 'ab' with 'Y' and "ZY" with X. It simply
+                    takes the <strong>list of all token ids (ids)</strong>, and <strong>pair of tokens (pair)</strong> that we
+                    want to replace and the <strong>new token id (idx),</strong> that we want <strong>all the occurrences of
+                    the pair</strong> in token lists(<strong>ids</strong>) to replace with. It return the list of all the
+                    updated tokens.</li>
+            </ol>
+
+            <pre><code>def merge(ids: list, pair: tuple, idx: int) -> list:
+    """
+    Merge all occurrences of a token pair into a single new token.
+    Args:
+        ids (list): List of token IDs to process.
+        pair (tuple): Tuple of two token IDs to merge (t1, t2).
+        idx (int): New token ID to assign to merged pair.
+    Returns:
+        list: New list with specified token pairs merged.
+    Example:
+        >>> merge([65, 66, 67, 65, 66], (65, 66), 256)
+        [256, 67, 256]
+    """
+    newids = []
+    i = 0
+    while i < len(ids):
+        # Check if we've found our target pair
+        if (i < len(ids) - 1 and          # Not at last token
+            ids[i] == pair[0] and         # First token matches
+            ids[i+1] == pair[1]):         # Second token matches
+            newids.append(idx)            # Add merged token ID
+            i += 2                        # Skip both tokens
+        else:
+            newids.append(ids[i])         # Keep current token
+            i += 1
+    return newids
+
+# Main BPE training process
+vocab_size = 350  # Target vocabulary size
+num_merges = vocab_size - 256  # Number of merges needed
+                              # 256 is typically the base vocabulary (byte tokens)
+
+ids = list(tokens)  # Create working copy of original tokens
+
+# Dictionary to store merge rules: (token1, token2) -> new_token
+merges = {}
+
+# Perform merges until we reach desired vocabulary size
+for i in range(num_merges):
+    # Get frequency counts of all adjacent pairs
+    stats = get_stats(ids)
+
+    # Find most frequent pair
+    pair = max(stats, key=stats.get)
+
+    # Assign new token ID (starting from 256)
+    idx = 256 + i
+
+    print(f"merging {pair} into a new token {idx}")
+
+    # Apply the merge throughout the token list
+    ids = merge(ids, pair, idx)
+
+    # Store the merge rule for later use
+    merges[pair] = idx</code></pre>
+
+            <div class="code-output">
+                # Output:
+                merging (227, 129) into a new token 256
+                merging (227, 130) into a new token 257
+                merging (32, 256) into a new token 258
+                ...
+            </div>
+
+            <pre><code># We can also calculate the compression ratio
+print("tokens length:", len(tokens))
+print("ids length:", len(ids))
+print(f"compression ratio: {len(tokens) / len(ids):.2f}X")</code></pre>
+
+            <div class="code-output">
+                # Output:
+                tokens length: 1245
+                ids length: 383
+                compression ratio: 3.25X
+            </div>
+
+            <p>
+                We observe that we got 3.25x compression in the tokens by using BPE as compared to 'utf-8'. We can actually see
+                how increasing dictionary size / vocab size improves the compression ratio for our text data. Following figure
+                shows it for our data:
+            </p>
+
+            <div class="figure-container">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*GyRWvX2u9sCy50pyeXC1CA.png" alt="Vocab Size vs Compression Ratio">
+                <p class="figure-caption">
+                    <span class="figure-number">Figure 2:</span> Vocab size vs compression ratio. We can observe that increasing vocab size increase the compression ratio, hence
+                    less no of token will be needed if we have very large vocabulary size.
+                </p>
+            </div>
+
+            <p>
+                As we saw in the figure 1 that tokenizers is a separate module, that deals with text to token conversion. LLM
+                never directly sees the texts and it always deals with tokens. So after getting all these secret sauces of BPE
+                encoding we actually need to encode a string. But remember we created all the secrete sauce based on the only
+                limited Japanese texts, so our encoder won't be very efficient and for english words it will be same as raw
+                'utf-8' encoding, that is the number of tokens for the english word after encoding will be same as no of
+                characters in the input texts. Therefore it is very important to train our tokenizers on diverse set of datasets
+                from different languages.
+            </p>
+
+            <pre><code>def encode(text: str) -> list:
+    """
+    Encode a text string into a sequence of token IDs using learned BPE merges.
+
+    This function:
+    1. Converts the input text to UTF-8 bytes
+    2. Iteratively applies learned merge rules to create larger tokens
+    3. Stops when no more merges are possible
+
+    Args:
+        text (str): The input text to be tokenized
+
+    Returns:
+        list: A list of integer token IDs
+
+    Example:
+        >>> encode("hello")
+        [256, 108, 111]  # where 256 might be the merged token for 'he'
+
+    Notes:
+        - Uses the global 'merges' dictionary containing learned BPE merge rules
+        - Applies merges greedily, choosing the lowest-indexed merge rule when multiple apply
+        - Merge rules are applied until no further merges are possible
+    """
+    # Convert input text to list of UTF-8 bytes
+    tokens = list(text.encode("utf-8"))
+
+    # Continue merging as long as we have at least 2 tokens
+    while len(tokens) >= 2:
+        # Get statistics (frequencies) of token pairs, since we need the keys of all pairs
+        stats = get_stats(tokens)
+
+        # Find the merge rule with lowest index
+        # merges.get(p, float("inf")) returns float("inf") if p isn't in merges
+        # This ensures pairs without merge rules are never selected
+        pair = min(stats, key=lambda p: merges.get(p, float("inf")))
+
+        # If the best pair has no merge rule, we're done
+        if pair not in merges:
+            break  # nothing else can be merged
+
+        # Get the new token ID for this pair
+        idx = merges[pair]
+
+        # Apply the merge throughout our token list
+        tokens = merge(tokens, pair, idx)
+
+    return tokens
+
+encoded_tokens_eng = encode("hello world")
+encoded_tokens_japanese = encode("まいにち")
+print(len("hello world"), len("まいにち"))
+print(len(encoded_tokens_eng), len(encoded_tokens_japanese))</code></pre>
+
+            <div class="code-output">
+                # Output:
+                11 4
+                11 3
+            </div>
+
+            <p>
+                we can see that for english words there is no compression but for a new Japanese word "まいにち" we are seeing
+                slight compression.
+            </p>
+
+            <h3>Decoding it back</h3>
+
+            <p>
+                Decoders converts back the sequence of encoded tokens to string. Since, we already discussed that LLMs always
+                deal with tokens, it take in tokens and gives out tokens. Tokenizer module must be able to also convert a
+                sequence of tokens back to strings for us human to understand.
+            </p>
+
+            <p>Let's understand that by following code:</p>
+
+            <pre><code>from typing import Dict, List, bytes
+
+# Initialize vocabulary with single byte tokens
+vocab: Dict[int, bytes] = {idx: bytes([idx]) for idx in range(256)}
+
+# Extend vocabulary with merged tokens from merges dictionary
+for (p0, p1), idx in merges.items():
+    vocab[idx] = vocab[p0] + vocab[p1] # this addition is in bytes so it will concatenate two bytes
+
+def decode(ids: List[int]) -> str:
+    """
+    Decodes a sequence of token IDs back into a text string using a pre-computed vocabulary.
+
+    The function performs the following steps:
+    1. Converts each token ID to its corresponding bytes using the vocabulary
+    2. Concatenates all bytes together
+    3. Decodes the resulting bytes into a UTF-8 string
+
+    Args:
+        ids (List[int]): A list of integer token IDs to decode.
+
+    Returns:
+        str: The decoded text string.
+
+    Global Dependencies:
+        - vocab (Dict[int, bytes]): A dictionary mapping token IDs to their byte sequences.
+
+    Example:
+        >>> decode([104, 101, 108, 108, 111])
+        'hello'
+
+    Notes:
+        - Uses 'replace' error handling for UTF-8 decoding, which replaces invalid
+          byte sequences with the � character rather than raising an error.
+        - The vocabulary is expected to be initialized with single bytes (0-255)
+          and extended with merged token pairs.
+    """
+    # Convert token IDs to bytes and join them, concatenate all the bytes togather
+    tokens: bytes = b"".join(vocab[idx] for idx in ids)
+
+    # Decode bytes to UTF-8 string, replacing invalid sequences
+    text: str = tokens.decode("utf-8", errors="replace")
+
+    return text
+
+result = decode([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100])
+print(result)
+
+decode_eng = decode(encoded_tokens_eng)
+decode_jap = decode(encoded_tokens_japanese)
+print(decode_eng)
+print(decode_jap)</code></pre>
+
+            <div class="code-output">
+                # Output:
+                hello world
+                hello world
+                まいにち
+            </div>
+
+            <h3>Let's wrap everything up</h3>
+
+            <p>Now let's create a module to do everything from training the BPE tokenizer to encoding a string and decoding it back.</p>
+
+            <pre><code>class BPETokenizer:
+    """
+    Byte-Pair Encoding (BPE) Tokenizer Implementation.
+
+    This tokenizer starts with a base vocabulary of bytes (0-255) and iteratively
+    merges the most frequent pairs of tokens to create new tokens until the
+    desired vocabulary size is reached.
+    """
+
+    def __init__(self, vocab_size: int = 512):
+        """
+        Initialize the BPE tokenizer.
+        Args:
+            vocab_size (int): Target size of the vocabulary. Must be > 256.
+        """
+        if vocab_size <= 256:
+            raise ValueError("Vocabulary size must be greater than 256")
+
+        self.vocab_size = vocab_size
+        self.vocab = None
+        self.merges = None
+
+    def get_stats(self, ids: list) -> dict:
+        """
+        Calculate frequencies of adjacent token pairs in a sequence.
+        Args:
+            ids (list): List of token IDs to analyze.
+        Returns:
+            dict: Mapping of token pairs to their frequencies.
+        """
+        counts = {}
+        for pair in zip(ids, ids[1:]):
+            counts[pair] = counts.get(pair, 0) + 1
+        return counts
+
+    def merge(self, ids: list, pair: tuple, idx: int) -> list:
+        """
+        Merge all occurrences of a token pair into a single new token.
+        Args:
+            ids (list): List of token IDs to process.
+            pair (tuple): Tuple of two token IDs to merge (t1, t2).
+            idx (int): New token ID to assign to merged pair.
+        Returns:
+            list: New list with specified token pairs merged.
+        """
+        newids = []
+        i = 0
+        while i < len(ids):
+            if (i < len(ids) - 1 and
+                ids[i] == pair[0] and
+                ids[i+1] == pair[1]):
+                newids.append(idx)
+                i += 2
+            else:
+                newids.append(ids[i])
+                i += 1
+        return newids
+
+    def train(self, text: str):
+        """
+        Train the tokenizer on input text.
+        Args:
+            text (str): Input text to train on.
+        """
+        # Initialize base vocabulary with bytes
+        self.vocab = {idx: bytes([idx]) for idx in range(256)}
+        self.merges = {}
+
+        # Convert text to bytes for initial tokens
+        tokens = list(text.encode("utf-8"))
+        ids = list(tokens)  # Working copy
+
+        # Calculate number of merges needed
+        num_merges = self.vocab_size - 256
+
+        # Perform merges
+        for i in range(num_merges):
+            # Get pair frequencies
+            stats = self.get_stats(ids)
+
+            if not stats:
+                break  # No more pairs to merge
+
+            # Find most frequent pair
+            pair = max(stats, key=stats.get)
+            idx = 256 + i
+
+            # Perform merge
+            ids = self.merge(ids, pair, idx)
+            self.merges[pair] = idx
+
+            # Update vocabulary
+            self.vocab[idx] = self.vocab[pair[0]] + self.vocab[pair[1]]
+
+    def encode(self, text: str) -> list:
+        """
+        Encode text into tokens.
+        Args:
+            text (str): Text to encode.
+        Returns:
+            list: List of token IDs.
+        """
+        if not self.vocab or not self.merges:
+            raise RuntimeError("Tokenizer must be trained first")
+
+        tokens = list(text.encode("utf-8"))
+
+        while len(tokens) >= 2:
+            stats = self.get_stats(tokens)
+            pair = min(stats, key=lambda p: self.merges.get(p, float("inf")))
+
+            if pair not in self.merges:
+                break  # Nothing else can be merged
+
+            idx = self.merges[pair]
+            tokens = self.merge(tokens, pair, idx)
+
+        return tokens
+
+    def decode(self, ids: list) -> str:
+        """
+        Decode token IDs back into text.
+        Args:
+            ids (list): List of token IDs.
+        Returns:
+            str: Decoded text.
+        """
+        if not self.vocab:
+            raise RuntimeError("Tokenizer must be trained first")
+
+        tokens = b"".join(self.vocab[idx] for idx in ids)
+        text = tokens.decode("utf-8", errors="replace")
+
+        return text
+
+# Example usage
+def main():
+    # Sample text for training
+    training_text = """
+    Hello world! This is a sample text to demonstrate BPE tokenization.
+    We'll use this to train our tokenizer and then test encoding and decoding.
+    """
+
+    # Initialize and train tokenizer
+    tokenizer = BPETokenizer(vocab_size=512)
+    tokenizer.train(training_text)
+
+    # Test encoding and decoding
+    test_text = "Hello world!"
+    encoded = tokenizer.encode(test_text)
+    decoded = tokenizer.decode(encoded)
+
+    print(f"Original text: {test_text}")
+    print(f"Encoded tokens: {encoded}")
+    print(f"Decoded text: {decoded}")
+    print(f"Vocabulary size: {len(tokenizer.vocab)}")
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+            <div class="code-output">
+                # Output:
+                Original text: Hello world!
+                Encoded tokens: [72, 101, 265, 111, 32, 119, 111, 114, 108, 100, 33]
+                Decoded text: Hello world!
+                Vocabulary size: 363
+            </div>
+
+            <h2>What's Next</h2>
+
+            <p>
+                As discussed in the beginning tokenization is probably the most "problematically important" concept in NLP. A
+                lot of problems in recent language models are because of the nature of tokenization. Here are some of the
+                problems listed by Karpathy Sensei in his video:
+            </p>
+
+            <ul>
+                <li>Why can't LLM spell words? <strong>Tokenization</strong>.</li>
+                <li>Why can't LLM do super simple string processing tasks like reversing a string? <strong>Tokenization</strong>.</li>
+                <li>Why is LLM worse at non-English languages (e.g. Japanese)? <strong>Tokenization</strong>.</li>
+                <li>Why is LLM bad at simple arithmetic? <strong>Tokenization</strong>.</li>
+                <li>Why is LLM not actually end-to-end language modeling? <strong>Tokenization</strong>.</li>
+                <li>What is the real root of suffering? <strong>Tokenization</strong>.</li>
+            </ul>
+
+            <p>
+                Some of these problems have been solved by the newer version of LLMs however a lot of security and safety issue
+                still exists. I would highly recommend anyone reading this blog to watch Karpathy Sensei's video on tokenization [1].
+            </p>
+
+            <p>
+                One of the major problem caused by tokenization is mathematical ability of larger language models [5, 6, 7, 8].
+                There have been several recent advancement in this direction that we will discuss in the next blog (hopefully 🙃)!!
+            </p>
+
+            <h3>References</h3>
+
+            <ol>
+                <li><a href="https://youtu.be/zduSFxRajkE?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ" target="_blank">Andrej Karpathy's Tokenization Video</a></li>
+                <li><a href="https://www.lesswrong.com/posts/aPeJE8bSo6rAFoLqg/solidgoldmagikarp-plus-prompt-generation" target="_blank">SolidGoldMagikarp and Prompt Generation</a></li>
+                <li><a href="https://huggingface.co/learn/nlp-course/en/chapter6/5" target="_blank">Hugging Face NLP Course - Tokenization</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Byte_pair_encoding" target="_blank">Byte Pair Encoding - Wikipedia</a></li>
+                <li><a href="https://huggingface.co/spaces/huggingface/number-tokenization-blog" target="_blank">Number Tokenization Blog</a></li>
+                <li><a href="https://arxiv.org/abs/2402.14903" target="_blank">Tokenization and Mathematical Reasoning</a></li>
+                <li><a href="https://www.beren.io/2024-07-07-Right-to-Left-Integer-Tokenization/" target="_blank">Right-to-Left Integer Tokenization</a></li>
+                <li><a href="https://arxiv.org/abs/2410.14166" target="_blank">Tokenization Effects on Language Models</a></li>
+                <li><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank">GPT-2 Paper</a></li>
+                <li><a href="https://seantrott.substack.com/p/tokenization-in-large-language-models" target="_blank">Tokenization in Large Language Models</a></li>
+                <li><a href="https://arxiv.org/pdf/2406.10229" target="_blank">Advanced Tokenization Techniques</a></li>
+                <li><a href="https://datascience.stackexchange.com/questions/126715/what-are-the-differences-between-bpe-and-byte-level-bpe" target="_blank">BPE vs Byte-level BPE</a></li>
+                <li><a href="https://tiktokenizer.vercel.app/" target="_blank">Tiktokenizer</a></li>
+                <li><a href="https://arxiv.org/pdf/1909.03341" target="_blank">Byte-level BPE Paper</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Oyoge!_Taiyaki-kun" target="_blank">Oyoge! Taiyaki-kun</a></li>
+            </ol>
+        </article>
+
+        <footer>
+            <p>© 2026 Mukul Ranjan</p>
+        </footer>
+    </div>
+
+    <script data-goatcounter="https://mukulranjan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
