@@ -12,18 +12,37 @@
             color: #333;
             margin: 0;
             padding: 0;
-            background: #f5f0eb url('static/image_gpt_image.png') no-repeat center top;
-            background-size: 100% auto;
-            background-attachment: fixed;
+            background: #f5f0eb;
         }
 
-        .page-overlay {
+        .bg-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('static/image_gpt_image.png') no-repeat center top;
+            background-size: 100% auto;
+            z-index: -2;
+        }
+
+        .bg-fade {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(
                 rgba(255,255,255,0.3) 0%,
                 rgba(255,255,255,0.75) 30%,
                 rgba(255,255,255,0.92) 50%,
                 #fff 70%
             );
+            z-index: -1;
+        }
+
+        .page-overlay {
+            position: relative;
             min-height: 100vh;
         }
 
@@ -112,6 +131,8 @@
     </style>
 </head>
 <body>
+    <div class="bg-fixed"></div>
+    <div class="bg-fade"></div>
     <div class="page-overlay">
         <div class="content">
             <p class="hero-credit">Background illustration generated with ChatGPT</p>
