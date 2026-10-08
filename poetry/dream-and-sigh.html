@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream and Sigh - Mukul Ranjan</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background: #f5f0eb;
+        }
+
+        .bg-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../static/image_gpt_image.png') no-repeat center top;
+            background-size: 100% auto;
+            z-index: -2;
+        }
+
+        .bg-fade {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(255,255,255,0.3) 0%,
+                rgba(255,255,255,0.75) 30%,
+                rgba(255,255,255,0.92) 50%,
+                #fff 70%
+            );
+            z-index: -1;
+        }
+
+        .page-overlay {
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero-credit {
+            font-size: 0.6em;
+            color: #aaa;
+            text-align: right;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .page-nav {
+            font-size: 0.9em;
+            margin-bottom: 40px;
+        }
+
+        .page-nav a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .page-nav a:hover {
+            color: #333;
+        }
+
+        .page-nav .sep {
+            color: #bbb;
+            margin: 0 8px;
+        }
+
+        .prose {
+            margin-bottom: 60px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .prose h2 {
+            font-size: 1.3em;
+            font-weight: 500;
+            margin: 0 0 16px 0;
+            color: #222;
+        }
+
+        .prose p {
+            margin: 0 0 16px 0;
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        .toc {
+            margin-bottom: 60px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .toc h2 {
+            font-size: 1.3em;
+            font-weight: 500;
+            margin: 0 0 16px 0;
+            color: #222;
+        }
+
+        .toc ol {
+            margin: 0;
+            padding-left: 1.6em;
+            columns: 2;
+            column-gap: 40px;
+            font-size: 0.95em;
+            line-height: 1.9;
+        }
+
+        .toc li {
+            break-inside: avoid;
+        }
+
+        .toc a {
+            color: #444;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        .poem {
+            margin-bottom: 60px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .poem:last-child {
+            border-bottom: none;
+        }
+
+        .poem h2 {
+            font-size: 1.6em;
+            font-weight: 500;
+            margin: 0 0 6px 0;
+            color: #222;
+        }
+
+        .poem-body {
+            white-space: pre-line;
+            font-size: 1.05em;
+            line-height: 2;
+        }
+
+        .poem-body .refrain {
+            font-weight: 600;
+            color: #222;
+        }
+
+        .poem-body .stanza {
+            margin-bottom: 28px;
+        }
+
+        .poem-body .section-num {
+            text-align: center;
+            font-weight: 600;
+            color: #555;
+            letter-spacing: 2px;
+            margin: 8px 0 20px 0;
+        }
+
+        .top-link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: #aaa;
+            text-decoration: none;
+        }
+
+        .top-link:hover {
+            color: #666;
+        }
+
+        hr.poem-divider {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 8px 0 20px 0;
+            width: 60px;
+        }
+
+        @media (max-width: 600px) {
+            .toc ol {
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-fixed"></div>
+    <div class="bg-fade"></div>
+    <div class="page-overlay">
+        <div class="content">
+            <p class="hero-credit">Background illustration generated with ChatGPT</p>
+
+            <p class="page-nav"><a href="../poetry.html">&larr; Poetry</a><span class="sep">&middot;</span><a href="../index.html">Home</a><span class="sep">&middot;</span><a href="swapn-aur-uchchhwas.html">हिंदी में पढ़ें &rarr;</a></p>
+
+            <h1 id="top">Dream and Sigh</h1>
+            <p class="subtitle"><em>Swapn aur Uchchhwas</em> &middot; Poems, translated from the Hindi</p>
+
+            <div class="prose" id="note">
+                <h2>A Note on the Translation</h2>
+                <p>These poems were translated from the Hindi by <strong>Claude Opus 5.5</strong>.</p>
+                <p>Most of these poems are rhymed and metred in Hindi, and several are written like songs, with a refrain that returns after each stanza. The English keeps every line, stanza and refrain of the original and aims at its rhythm; it lets the rhyme go wherever keeping it would have bent the meaning.</p>
+                <p>A row of dashes after the opening words of a refrain is the poet's own shorthand from the notebook: the refrain is to be repeated in full. A line marked ×2 is sung twice.</p>
+                <p>A few words are best explained once. <em>Mukul</em>, the poet's name, is the Hindi word for a bud, and is translated as 'bud' wherever it appears. The <em>chakor</em> is a partridge which, in Indian poetry, lives on moonlight and pines for the moon. <em>Bharati</em> is a name both of the goddess of learning and of India. Shiva, whose consort is Uma, drank the poison that rose when the ocean was churned and held it in his throat, which turned blue; hence the Blue-Throated One.</p>
+            </div>
+
+            <div class="toc">
+                <h2>Contents</h2>
+                <ol>
+                    <li><a href="#dream">Dream</a></li>
+                    <li><a href="#if-only-you-were-with-me">If Only You Were With Me</a></li>
+                    <li><a href="#the-call">The Call</a></li>
+                    <li><a href="#i-am-no-poet">I Am No Poet</a></li>
+                    <li><a href="#strength-and-resolve">Strength and Resolve</a></li>
+                    <li><a href="#tell-me-beloved">Tell Me, Beloved</a></li>
+                    <li><a href="#of-smoke-alone">Of Smoke Alone</a></li>
+                    <li><a href="#today-beloved">Today, Beloved</a></li>
+                    <li><a href="#whenever">Whenever</a></li>
+                    <li><a href="#new-year-new-hopes">New Year, New Hopes</a></li>
+                    <li><a href="#that-star">That Star</a></li>
+                    <li><a href="#when-did-i-ever-weep">When Did I Ever Weep! When Do I Weep!!</a></li>
+                    <li><a href="#rebuilding">Rebuilding</a></li>
+                    <li><a href="#it-felt-good">It Felt Good</a></li>
+                    <li><a href="#circumstances-and-thought">Circumstances and Thought</a></li>
+                    <li><a href="#what-the-stars-taught-me">What the Stars Taught Me</a></li>
+                    <li><a href="#your-voice">Your Voice</a></li>
+                    <li><a href="#let-the-bud-bloom-today">Let the Bud Bloom Today</a></li>
+                    <li><a href="#you">You</a></li>
+                    <li><a href="#words-that-fell-out-with-the-poem">Words That Fell Out with the Poem</a></li>
+                    <li><a href="#i-am-no-poet-in-whose-heart">I Am No Poet in Whose Heart</a></li>
+                    <li><a href="#the-song-that-turned-away">The Song That Turned Away</a></li>
+                    <li><a href="#when-one-of-your-own-turns-away">When One of Your Own Turns Away</a></li>
+                    <li><a href="#where-are-you">Where Are You?</a></li>
+                    <li><a href="#sight">Sight</a></li>
+                    <li><a href="#i-and-you-1">I and You – I (What We Imagine)</a></li>
+                    <li><a href="#i-and-you-2">I and You – II (Your Excellence)</a></li>
+                    <li><a href="#i-and-you-3">I and You – III (My Smallness)</a></li>
+                    <li><a href="#your-picture">Your Picture</a></li>
+                    <li><a href="#i-am-a-lamp">I Am a Lamp, I Shall Keep Burning</a></li>
+                    <li><a href="#sigh">Sigh</a></li>
+                </ol>
+            </div>
+            <div class="poem" id="dream">
+                <h2>Dream</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">I stumble now — and is this
+the way the dream must end?
+That thing that writhes somewhere in pain,
+is it far away, or here?
+These sobs I keep on hearing —
+who is it weeps, and where?
+The boat that, searching for an isle,
+keeps plunging in the waves —
+am I aboard that boat today,
+or have I become the boat?</div>
+<div class="stanza">Is this a dream, or is it sleep
+that broke off, unfinished, from a dream?
+Is something truly burning here,
+or is it hope, already burned?
+If the dream itself is what is true,
+then what would I wake for!
+If the beginning is the end,
+why should I fear the end?</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="if-only-you-were-with-me">
+                <h2>If Only You Were With Me</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">Amid the ocean of my grief,</span>
+<span class="refrain">in this sweet meeting with life's joy,</span>
+<span class="refrain">if only you were with me! (×2)</span></div>
+<div class="stanza">Through the water-born waves
+of the sea of sorrow I have pressed on till now;
+against every wave, to this day,
+I have fought on without you.</div>
+<div class="stanza">But today, when I found the little boat of joy,
+my heart, delighted, said to me —</div>
+<div class="stanza"><span class="refrain">Amid the ocean of my grief,</span>
+<span class="refrain">in this sweet meeting with life's joy,</span>
+<span class="refrain">if only you were with me.</span></div>
+<div class="stanza">In this ocean of darknesses
+who knows how many storms have come.
+How many times I've lost my way here,
+how many black clouds have gathered.</div>
+<div class="stanza">I kept silent, holding on to this hope:
+one day these sorrows will fall away;
+when at last I find you,
+all the clouds will clear.</div>
+<div class="stanza">But when the small joys before our meeting
+came into my heart,
+then, beside itself,
+weeping, it whispered to me —</div>
+<div class="stanza"><span class="refrain">Amid the ocean of my grief,</span>
+<span class="refrain">in this sweet meeting with life's joy,</span>
+<span class="refrain">if only you were with me.</span></div>
+<div class="stanza">That for years my ideals,
+the stars, were hidden from my sight;
+that with the drops of dark, dark clouds
+these tears of mine rained down.</div>
+<div class="stanza">Even through the storms on sorrow's ocean,
+how I managed to go on;</div>
+<div class="stanza">without the stars, the sun, the moon,
+how I walked on through the dark.</div>
+<div class="stanza">But seeing a glimmer somewhere,
+my heart took it for a lamp's flame,
+and, overjoyed and weeping,
+softly, softly said to me —</div>
+<div class="stanza"><span class="refrain">Amid the ocean of my grief,</span>
+<span class="refrain">in this sweet meeting with life's joy,</span>
+<span class="refrain">if only you were with me.</span></div>
+<div class="stanza">How hard it was to make my way —
+I wish I could have told you.
+In the glad hour of this sad journey
+if only I could have been with you.</div>
+<div class="stanza">Still, holding the hope of you alone,
+I have been walking for ages;
+with a small thirst in my heart
+I have been walking for ages.</div>
+<div class="stanza">But now that in the dark something
+like a new light has shown itself to me,
+falling silent, lost in myself,
+I whispered to my heart —</div>
+<div class="stanza"><span class="refrain">in that boat which is on its way,</span>
+<span class="refrain">if only, if only you were there.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="the-call">
+                <h2>The Call</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">My heart called out to you again today!</span></div>
+<div class="stanza">The monsoon clouds hung thick and dark,
+a new intoxication filled my mind.
+Like an ocean wave I rose and surged;
+it seemed as though you had touched me.</div>
+<div class="stanza">In this hour brimming with joy and frenzy,
+<span class="refrain">this heart called out to you again today.</span></div>
+<div class="stanza">Losing myself, I set out once more to find
+your image in the water of the clouds.
+And when I began to see you in every drop,
+a new beauty woke within my heart.</div>
+<div class="stanza">From the honeyed dwelling of a heart brimful of beauty,
+<span class="refrain">this heart called out to you again today!!</span></div>
+<div class="stanza">Even in that black sky a moon could be seen,
+yes, on that night so full of cloud;
+and lost in it, I began to gaze
+upon your face in that night's rain.</div>
+<div class="stanza">In every rhythm of the music playing in my heart,
+<span class="refrain">this heart called out to you again today!!</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-am-no-poet">
+                <h2>I Am No Poet</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">I am no poet of delight,</span>
+<span class="refrain">I only tell my pain.</span>
+The song that's full of letting go —
+that is the song I sing.
+I am no poet — — —</div>
+<div class="stanza">How many of my own have turned from me —
+that is the feeling of my verse;
+whoever came along with me
+went off and left me somewhere, yes.</div>
+<div class="stanza">With this feeling, every hour, always,
+I set my pen to move.
+<span class="refrain">I am no poet of delight,</span>
+<span class="refrain">I only tell my pain.</span></div>
+<div class="stanza">Seeing the chakor's ache for the moon,
+the peacock's plight without the clouds,
+when compassion wells up in my heart
+I cannot stop my pen.</div>
+<div class="stanza"><span class="refrain">I am no poet of delight,</span>
+<span class="refrain">I only tell my pain.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="strength-and-resolve">
+                <h2>Strength and Resolve</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">I am making the road, my companion,</span>
+<span class="refrain">but you must come along with me.</span>
+On this road toward our dreams
+don't you forget to follow now.</div>
+<div class="stanza">Only by hearing your footsteps
+can I take another stride;
+only by your fragrance
+can I keep the pathway safe.</div>
+<div class="stanza">I clear the thorns from off the road;
+you keep on giving it your love.
+<span class="refrain">I am making the road, my companion,</span>
+<span class="refrain">but you must come along with me.</span></div>
+<div class="stanza">How fortunate I am that now
+I have your company with me:
+each grain of dust has found its strength,
+each dream has found its faith.</div>
+<div class="stanza">I go on making my resolve;
+you keep on giving me your strength.
+<span class="refrain">I am making the road, my companion,</span>
+<span class="refrain">but you must come along with me.</span></div>
+<div class="stanza">The grains of dust along the road are not one;
+now they must be made one.
+And so this whole world may not halt,
+it's we who have to change.</div>
+<div class="stanza">I go on giving courage;
+you keep on giving a new faith.
+<span class="refrain">I am making the road, my companion,</span>
+<span class="refrain">but you must come along with me.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="tell-me-beloved">
+                <h2>Tell Me, Beloved</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="section-num">I</div>
+<div class="stanza">Where is our bread for the road — is anything left at all?
+<span class="refrain">Tell me, beloved, shall we turn back? My heart is full of fear.</span></div>
+<div class="stanza">The thought of where we're bound torments me again and again;
+on this road so full of anguish, who knows what storm has come.
+Tell me, beloved — — —</div>
+<div class="stanza">With half the journey still to go, my spirit is giving way;
+in every corner of this heart, who knows what dread has spread.
+Tell me, beloved — — —</div>
+<div class="stanza">When all the roads that lie ahead are thick with nothing but thorns,
+what road is this we've come upon, so full of nothing but sighs?
+Tell me, beloved — — —</div>
+<div class="section-num">II</div>
+<div class="stanza">No, my love! If we're together, what is there to fear?
+<span class="refrain">No, my love, not now! Let us not turn back; the battle has only now begun.</span>
+Half the journey's over now; do not look back.
+Let the thorns go on pricking, as they have pricked till now.
+No, my love, not now! — — —</div>
+<div class="stanza">On the strength of love we'll walk whatever road is left;
+till now our love itself has been our bread for the road.
+No, my love, not now! — — —</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="of-smoke-alone">
+                <h2>Of Smoke Alone</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">Of smoke alone my home was made, and always has been;</span>
+<span class="refrain">not even in my dreams did I ever meet that fairy.</span></div>
+<div class="stanza">She on whom I wrote who knows how many ghazals —
+her lotus eyes have never opened before me.
+Of smoke alone — — —</div>
+<div class="stanza">She at whose smile the moonlight itself was shamed —
+never once, not once, did she bloom before me.
+Of smoke alone — — —</div>
+<div class="stanza">With her I walked from the earth up to the moon;
+she never walked a single step with me.
+Of smoke alone my home — — —</div>
+<div class="stanza">The world kept asking: where is she, and who is 'she'?
+But I, to this very day, have never met 'her'.
+Of smoke alone my — — —</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="today-beloved">
+                <h2>Today, Beloved</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">Today, beloved, how am I to accept your love?</span></div>
+<div class="stanza">The world that has always taken love for a wrong —
+before that world, tell me, how am I to love?
+Today, beloved, . . .</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="whenever">
+                <h2>Whenever</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">Whenever I break down along the way,
+whenever I fall out even with life,
+when it feels as though nothing is mine,
+and something like a storm wakes up inside —
+even then you come close and win me round;
+it is you who set my broken hopes right again.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="new-year-new-hopes">
+                <h2>New Year, New Hopes</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">In the new year, may no one
+in the world be cross with anyone.
+In the new year, may no one
+in the world break away from anyone.</div>
+<div class="stanza">In the colours of the new year
+may honour come in rainbow hues.
+May no one's trust be broken;
+may every lip be given a smile.</div>
+<div class="stanza">May even the tears the world's weeping has shed
+now find a hope of their own.
+May even the waves of the sea of tears
+find a new, new name.</div>
+<div class="stanza">Through the new year's new thinking
+may everyone be given respect.
+May no one's trust be broken;
+may every lip be given a smile.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="that-star">
+                <h2>That Star</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">That star
+I look at every day,
+shining
+in one corner of the sky —</div>
+<div class="stanza">last year,
+when I saw it
+for the first time,
+thousands of stars were shining
+around it,
+but the brightest glow
+was its own.</div>
+<div class="stanza">I don't know why,
+but slowly all the stars
+drew away from it,
+and today
+when I looked at it,
+my eyes
+welled up,</div>
+<div class="stanza">because in that corner
+it was alone today.</div>
+<div class="stanza">And yet
+I was amazed,
+for its glow
+was just as bright today!</div>
+<div class="stanza">Today too
+it was smiling,
+just the way
+it smiled
+when I saw it first!</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="when-did-i-ever-weep">
+                <h2>When Did I Ever Weep! When Do I Weep!!</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+<div class="stanza">In the arms of the black nights,
+when to my eyes, that only count the stars,
+the dreams begin to shimmer,
+I just listen to my heart's sigh.</div>
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+<div class="stanza">When the goal seems far away
+and the road seems to have strayed, then
+I take my companion by the hand
+and let myself drift with my tears.</div>
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+<div class="stanza">Walking and walking life's long road,
+when my heart grows tired,
+then, hidden under my pillow,
+I sing my heart out, sob by sob.</div>
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+<div class="stanza">The world, seeing my tears,
+laughs and calls it madness; but
+I always wipe the water from my eyes
+and, laughing, tell the world —</div>
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+<div class="stanza">What people call tears
+is the nectar of my life;
+hidden from the noise of the world,
+I wash my heart with it.</div>
+<div class="stanza"><span class="refrain">When did I ever weep! When do I weep!!</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="rebuilding">
+                <h2>Rebuilding</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">I have set out once more today to build that nest again.</span></div>
+<div class="stanza">The nest that, in those hours of storm,
+you abandoned and left;
+whose straws you saw torn and scattered,
+and still did not return.</div>
+<div class="stanza">The trees broke, the leaves dried up,
+the tender new shoots withered;
+the newborn buds dried up without you,
+but you did not come.</div>
+<div class="stanza">But I, without you all the same,
+have set out again today;
+<span class="refrain">to build that nest once more</span>
+<span class="refrain">I have set out again today.</span></div>
+<div class="stanza">Today, yes, even without you,
+a home shall rise again,
+and the lamp that burns within it
+shall light up all the world.</div>
+<div class="stanza">You were the ghee in that lamp,
+and I the wick that burned;
+but when you went and left me,
+I went out right there.</div>
+<div class="stanza">Yet, to put an end to the dark,
+I have burned alone, again today;
+<span class="refrain">to build that nest once more</span>
+<span class="refrain">I have set out again today.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="it-felt-good">
+                <h2>It Felt Good</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="section-num">I</div>
+<div class="stanza">It felt good,
+the first time,
+when you
+met me.</div>
+<div class="section-num">II</div>
+<div class="stanza">It felt good,
+the first time,
+that I ached
+after meeting
+you here.</div>
+<div class="section-num">III</div>
+<div class="stanza">It felt good,
+the first time,
+yes, to see
+tears in those
+lotus-like
+eyes of yours.</div>
+<div class="section-num">IV</div>
+<div class="stanza">It felt good,
+the first time,
+when I,
+yes, in my life,
+truly, from the heart,
+loved someone.</div>
+<div class="section-num">V</div>
+<div class="stanza">It felt good,
+the first time,
+to learn
+from you, here,
+that in love
+there is, yes,
+some pain as well.</div>
+<div class="section-num">VI</div>
+<div class="stanza">It felt good,
+the first time,
+when I understood
+that all along,
+never from the heart,
+anywhere, had you
+loved
+me.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="circumstances-and-thought">
+                <h2>Circumstances and Thought</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">My introduction
+is only this —
+I am a bud
+without fragrance.</div>
+<div class="stanza">Joy spread
+with my coming
+into the joyless,
+dried-up garden.</div>
+<div class="stanza">Then I grew,
+fighting on,
+in the battle of life,
+alone.</div>
+<div class="stanza">I was born
+in that garden
+which had been dry
+for many years.</div>
+<div class="stanza">Hopes took shape,
+a longing woke
+among the dry leaves
+for flowers.</div>
+<div class="stanza">Dry leaves —
+yes, many times —
+were the companions
+that stayed with me.</div>
+<div class="stanza">Without beauty,
+just like me,
+were many
+other dry buds.</div>
+<div class="stanza">'The garden will
+be green again' —
+at the thought, every flower
+thrilled with joy.</div>
+<div class="stanza">I sulked, too,
+when they were lost;
+but I have not stopped,
+not to this day.</div>
+<div class="stanza">Seeing them,
+I came to know —
+<span class="refrain">struggle is the essence of life.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="what-the-stars-taught-me">
+                <h2>What the Stars Taught Me</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="section-num">I</div>
+<div class="stanza">My restless mind was heaped with anguish,
+my breast was full of the world's pain;
+and in my tear-filled eyes there brimmed,
+yes, a new song of compassion.</div>
+<div class="stanza">When I came up out of the sea of weeping,
+the wide sky lay spread before me;
+star-studded, all in jewels,
+how close to me the heavens came.</div>
+<div class="stanza">The moon, in that sky like a village well,
+was lovely as a plate of nectar.
+There was beauty even in the dark
+that my heart's grief could not see.</div>
+<div class="stanza">Can a heart that is all sorrow
+ever have a sense of beauty?
+You set out to find joy in tears —
+ah, my heart, how innocent you are.</div>
+<div class="stanza">Why do you rain your teardrops down
+today on the desert of the world?
+No bud can blossom in such a place;
+why then do you ask them for joy?</div>
+<div class="stanza">It was because of feelings like these
+my heart sank in the sea of tears;
+the water went on streaming from my eyes,
+and then I saw them, yes, in the moon.</div>
+<div class="section-num">II</div>
+<div class="stanza">When I could not hold myself together,
+I asked the stars in the sky —</div>
+<div class="stanza">O bearer of endless light,
+how did you ever get up there?
+What was your life like,
+what were your sorrows, what your joys?</div>
+<div class="stanza">Did your resolve never once
+break in your hands?
+Did your roads never once
+slip away from you?</div>
+<div class="stanza">Did you never, in your life,
+lose to your own self?
+Did one who was your own never
+become a stranger to you?</div>
+<div class="stanza">Did you not, every time,
+stumble by your own doing?
+Did your goal never once
+turn into defeat?</div>
+<div class="stanza">Did no wave ever rise
+in the depths of your heart
+when
+they could never
+understand you?</div>
+<div class="stanza">Did your heart never go
+into the sea of weeping
+and weep?</div>
+<div class="stanza">That anguish of the heart —
+where and how did you hide it?</div>
+<div class="stanza">Were your eyes never
+wet with anguish?</div>
+<div class="stanza">Did you not always go off
+alone somewhere and weep,
+at those times
+when your own people turned away from you?</div>
+<div class="stanza">When, after losing,
+your heart sulked with you,
+how did you win it back?</div>
+<div class="stanza">When defeat after defeat
+was breaking you within,
+in this life that ripples like a river,
+in the very midst of losing,
+how did you manage to find joy?</div>
+<div class="stanza">Where did you find your spirit?
+Tell me today.
+The secret of your shining —
+explain it to me now, today.</div>
+<div class="stanza">From eyes that sorrow moves,
+these tears of mine
+are flowing today;
+stop it,
+this wave of anguish,
+now and for ever.</div>
+<div class="stanza">No one has ever
+understood me.
+You understand me, my dear,
+O jewel of the moon,
+ideal of the world,
+adornment of the moon.</div>
+<div class="section-num">III</div>
+<div class="stanza">Seeing me so despairing,
+a star began to speak to me:</div>
+<div class="stanza">I too break and fall,
+I too fall out with the sky.
+Some days you see me there,
+some days I'm lost in the sky.</div>
+<div class="stanza">I too am eclipsed;
+it is your earth that covers me.
+I too come to an end
+when the infinite turns away from me.</div>
+<div class="stanza">I am not the greatest of all;
+the worlds hold millions like me.
+If you would grow, keep walking on;
+the world is moving — do not stand still.</div>
+<div class="stanza">To walk is the beginning of life;
+to stop on the road is its end.
+Keep lighting the lamps of dreams;
+the roads hold countless destinations.</div>
+<div class="stanza">The sharp points of the thorns on the path —
+crush them underfoot and make your road.
+And if rocks should come in the way,
+keep crashing against the rocks.</div>
+<div class="stanza">No one here will stop you;
+keep on stepping forward.
+Struggle is life's companion;
+keep holding struggle close.</div>
+<div class="stanza">Has a mountain ever stopped
+a river's current in full flood?
+Step forward — yes, step forward,
+step forward, and be unbroken.</div>
+<div class="stanza">Every day new dreams are made,
+every day new loved ones made;
+they do not weep for those who turn away,
+who walk the road to their goal.</div>
+<div class="stanza">All your dreams will break as well,
+your own will turn from you as well;
+but you must never break,
+you must never turn away.</div>
+<div class="stanza">Everyone's resolve gets broken,
+everyone's roads slip away;
+in this world of struggle,
+everyone's own turn from them.</div>
+<div class="stanza">Hold back the sky, hold back the wind,
+change the false ways of the world.
+This whole world's song, in full bloom,
+comes from you alone — change its ways.</div>
+<div class="stanza">Rain down your own teardrops
+and water this world's desert.
+This is the beauty of compassion:
+give everything to the world's joy.</div>
+<div class="stanza">Your heart is not foolish
+for seeking joy in tears.
+In tears the real truth is seen;
+beauty lives in tears.</div>
+<div class="stanza">You yourself are tomorrow's star,
+the night's adornment — you the moon;
+you are the pole star that shows the way,
+the life of creation — you the sun.</div>
+<div class="section-num">IV</div>
+<div class="stanza">On the road to our goals,
+at every turn, yes,
+a new storm comes
+and breaks
+all of them,
+the new dreams,
+lovely and full of song.
+It plunders
+the whole world of our dreams.
+Then even they turn away
+who once stood first
+in our lives, as their music.</div>
+<div class="stanza">Struggling with all their strength,
+they conquer
+even defeat — those new ones who,
+on the road to their goal,
+leaving every sorrow behind,
+have walked on without rest.</div>
+<div class="stanza">Even the storm dies down
+at the sight of their struggle;
+and they come back too,
+the ones who had left and gone.</div>
+<div class="stanza">These are all truths of life;
+accept this —
+after every sorrow in life
+a new gladness comes,
+new dreams are made ready,
+and then, as always,
+new lamps of joy are lit.</div>
+<div class="stanza">Then why does it trouble you now?
+Don't sulk — struggle on —</div>
+<div class="stanza">you are no one person's fellow traveller;
+no single one is your beloved.
+Your work is your companion,
+your work is your wedded wife!</div>
+<div class="section-num">V</div>
+<div class="stanza">All the rays of glory
+are waiting for you;
+unconquered one, rise now —
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="stanza">On you lies Bharati's weight,
+O steadfast, wise, O brilliant one;
+you, like the wind, must never —
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="stanza">Your shine is like gold;
+let your light nowhere grow dim.
+O sun, go on and on —
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="stanza">Moon of the dark eye of night,
+you nectar-sweet moonlight,
+glow of the moon, go on and on —
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="stanza">Brave son of the earth,
+awakened hero of knowledge,
+treasure and nectar of the nation,
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="stanza">In a heart as wide as the infinite
+let there be no turmoil;
+with a blazing imagination,
+<span class="refrain">do not stop, do not stop.</span></div>
+<div class="section-num">VI</div>
+<div class="stanza">You are the sun of a new world,
+the light of new knowledge;
+you are the pride of this earth,
+you yourself are a new storm.</div>
+<div class="stanza">The darkness of this world
+will be driven out by you alone.
+Don't go out now — no, don't go out;
+don't put yourself out yet.</div>
+<div class="stanza">Don't be beaten by a defeat
+that is only a moment for you.
+Fight on against the storm
+to win the love of the world.</div>
+<div class="stanza">You are the lamp of the world,
+you are the song of every love.
+Know this: you are someone;
+come, know yourself from now on.</div>
+<div class="stanza">Don't let defeat defeat you —
+the whole world is yours.
+If it is victory you love,
+accept defeat as well.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="your-voice">
+                <h2>Your Voice</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">In this happy hour, sweet as nectar, say something, my dearest;
+with me, the whole world is longing to hear your voice.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="let-the-bud-bloom-today">
+                <h2>Let the Bud Bloom Today</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">Without the love of a single bee,
+they are scorched by night and day.
+How long will they go on standing between the drains and canals,
+how long go on growing, far away from the world?</div>
+<div class="stanza">With all the love the bee can bring
+let the bud meet today.
+Hold back the rays no longer —
+<span class="refrain">let the bud bloom today.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="you">
+                <h2>You</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">You came and gave my longings form;
+it is you alone who grace this gathering of mine.
+You may be far away from me,
+but in this heart of mine, it's your heart that beats.</div>
+<div class="stanza">This is my wish: that you remember me;
+for me to forget you — that is the hard thing.
+This heartbeat, these breaths are all laid down for you;
+you are my road, and you my destination.</div>
+<div class="stanza">You are who I am — a fairy, almost a stranger;
+in every moment of my joy, it's you, only you, standing there.
+Why torment me? Come close to me now;
+without you, beloved, this heart is all but lifeless.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="words-that-fell-out-with-the-poem">
+                <h2>Words That Fell Out with the Poem</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="section-num">1.</div>
+<div class="stanza">My story has no voice;
+who is there who understands it?
+I keep the heart's pain inside the heart,
+and still the whole world is angry with me.</div>
+<div class="section-num">2.</div>
+<div class="stanza">Why can I not forget you, even when I try?
+Why, beloved, are you still my life today?
+Silence spreads on every side without you;
+why, even in the silence, do you keep calling out to me?</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-am-no-poet-in-whose-heart">
+                <h2>I Am No Poet in Whose Heart</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">I am no poet in whose heart
+a river of feeling flows.
+My poor sulking poetry
+the world calls mere rhyming.</div>
+<div class="stanza">I fear that you, too, will laugh
+when you hear my poem.
+And yet today, yes, unafraid,
+the poet in me says to you! —</div>
+<div class="stanza">Every feeling of my sulking poem —
+beloved, yes, it is you.
+Who you are I do not know,
+but you are the sound of every feeling.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="the-song-that-turned-away">
+                <h2>The Song That Turned Away</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">I want to become the song of the world;
+I want to become someone's friend.</div>
+<div class="stanza">But who knows why, to this day,
+I have found no one's company;
+to this day I could not become
+even a shadow to anyone.</div>
+<div class="stanza">I had held someone's hand
+in the lap of that dream,
+and swayed with happiness,
+delighting beside her.</div>
+<div class="stanza">But why, I do not know, has that company
+slipped away even from the dream?
+That golden song — who knows
+why it has turned away now?</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="when-one-of-your-own-turns-away">
+                <h2>When One of Your Own Turns Away</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">I have watched it break,
+a family, right before me;
+the people of the house were parting,
+and no one's eyes were wet.
+There must have been some quarrel,
+I thought.</div>
+<div class="stanza">I have watched it break,
+a branch from a tree;
+all its leaves were falling,
+and the tree did not even try to stop it.
+They must have been helpless,
+I thought.</div>
+<div class="stanza">But when a dream breaks,
+when someone of your own is lost,
+what happens then —
+I have seen that too,
+with these very eyes.
+I even tried to stop them,
+but they did not stay.
+They must have been upset with me,
+I thought.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="where-are-you">
+                <h2>Where Are You?</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">Looking at the stars in the sky,
+my mind keeps asking —
+in this heaven,
+<span class="refrain">where are you?</span></div>
+<div class="stanza">When in this mind, calm as the sea,
+waves sometimes rise,
+a new storm comes,
+my heart grows restless,
+a fire catches in this body.</div>
+<div class="stanza">Let me turn these winds around,
+let me create a new world.
+In the midst of all this,
+giving me new faith,
+my mind keeps asking —
+in this time
+of a changing world,
+<span class="refrain">where are you?</span></div>
+<div class="stanza">Time changed its ways;
+when a new song woke,
+the ways of this world changed,
+all fear of losing fled.
+A longing came
+to love this world.
+Let me change everyone,
+let me win the world's heart.</div>
+<div class="stanza">But knowing what 'now' is,
+my mind keeps asking —
+in this moment
+of a world full of joy,
+<span class="refrain">where are you?</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="sight">
+                <h2>Sight</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">These eyes want to say something,
+want to tell —
+the ache of life,
+where longing leads,
+and the pain of how one sees.</div>
+<div class="stanza">They want to show people everything,
+even in the dark, by their own light.</div>
+<div class="stanza">Now aching is their story,
+and perhaps their voice as well.
+The face that once made them light up,
+the face they could never look away from —
+today they see it and flinch,
+and lower themselves in shame,
+these eyes that want to say something.</div>
+<div class="stanza">Whom can they tell the truth, among all the lies,
+when everyone here has become a stranger?
+When your own self has turned against you,
+what will the world understand of this caravan of pain?</div>
+<div class="stanza">The world's cruelty
+they will perhaps forget,
+because
+they know themselves,
+and they know
+the truth of the world,
+the truth of longing,
+and time's changing ways,
+changing thought
+and a changing society.
+And
+perhaps that face as well...</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-and-you-1">
+                <h2>I and You – I (What We Imagine)</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">That I should stay with you alone —
+this is what life is telling me.
+Let this life of mine be yours:
+yes, this is now my only wish.</div>
+<div class="stanza">Be the moonlight to my moon,
+so the world may fill with light;
+let the night of hatred vanish,
+let every person be a cup of love.</div>
+<div class="stanza">Let us be the wine in those cups
+and make this whole world drunk;
+come, together let us two
+give everyone love's nectar to drink.</div>
+<div class="stanza">In that world of the intoxicated,
+let us be the ones who pour out love;
+then a thirst for love will wake in all,
+and we will keep the cups.</div>
+<div class="stanza">Open your eyes, O doe-eyed one,
+and see
+how happy humankind will be.
+In that world filled with love,
+ah, what joy there will be!</div>
+<div class="stanza">Where people worship love,
+could sorrow be found there at all?
+No Draupadi will be disrobed,
+no Mahabharata war be fought.</div>
+<div class="stanza">All humans, yes, will be equal
+when love never grows less;
+everyone will attain godliness
+when we two become one.</div>
+<div class="stanza">Come, let us build with love
+that world full of humanity.
+Let the two of us become Shiva and Uma
+and drink down the poison of hatred.</div>
+<div class="stanza">When the venom slides down my throat,
+stop it there and save the world;
+I shall be called the Blue-Throated One,
+and you — become the Mother of the World.</div>
+<div class="stanza">Can we two not come together
+to make all these dreams come true?
+Come, be with me, O moon-faced one;
+let us go and build a new world.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-and-you-2">
+                <h2>I and You – II (Your Excellence)</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">You are the song, I the melody.
+You are the throat, I the voice.
+Without you I am nothing;
+where you are, there am I.</div>
+<div class="stanza">If you are the earth, I am its dust;
+if you the fragrance, I the flower.
+I am the moon, and you the moonlight;
+you were made for me alone.</div>
+<div class="stanza">You are life, and I am longing;
+you the destination, I the road.
+I am desire, and you are love;
+I am the garden, you the spring.</div>
+<div class="stanza">Of you my world is made;
+of me let your world be made.
+This is all my dream is now.</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-and-you-3">
+                <h2>I and You – III (My Smallness)</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">You are the calm, still sea, sweet as nectar;
+I am a river full of waves.
+Searching, wandering from somewhere,
+I have come to you at last.</div>
+<div class="stanza">Give me a place within your heart,
+so that I may stay near you,
+so that every sorrow, always,
+I may now bear with you.</div>
+<div class="stanza">My joy and my sadness
+both thirst for your love.
+All my longings,
+without you, are only dreams....</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="your-picture">
+                <h2>Your Picture</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">I thought I would draw your picture —
+me, drawing a picture!
+Funny, isn't it?</div>
+<div class="stanza">I just started drawing, idly,
+the image I had stolen long ago.</div>
+<div class="stanza">You won't believe it:
+I didn't erase it even once,
+and in a little while
+I had drawn a very beautiful face.</div>
+<div class="stanza">I was astonished,
+because I had drawn a face!
+More beautiful than the moon —
+no, it cannot even be compared to the moon,
+because
+that picture was my heart pouring out.
+I don't know how,</div>
+<div class="stanza">it drew itself;
+I only kept moving the pencil.
+Perhaps because
+you are so far away from me;..</div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="i-am-a-lamp">
+                <h2>I Am a Lamp, I Shall Keep Burning</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza">On the road of life, always,
+I shall keep walking without rest;
+<span class="refrain">I am a lamp — I shall keep burning.</span></div>
+<div class="stanza">My work is to give light without end;
+the storms' work is to blow me out.
+But for the sake of light
+I shall go on thriving in the storm.
+<span class="refrain">I am a lamp — I shall keep burning.</span></div>
+<div class="stanza">On the road to every goal
+obstacles come by the thousand;
+but again and again, against the mountains,
+the rivers always dash themselves.</div>
+<div class="stanza">By the blows of a single stream
+the mountain is worn to sand;
+from that striking, again and again,
+the way makes itself.</div>
+<div class="stanza">Like that river,
+I shall keep fighting the heights.
+<span class="refrain">I am a lamp — I shall keep burning.</span></div>
+<div class="stanza">When, in a garden gone to waste,
+a bud is born,
+one grows on, while another
+withers and falls asleep.</div>
+<div class="stanza">But the one that fights its hardships —
+that one, yes, finds life;
+it is that one the fragrance comes to,
+yes, that one is called a flower.</div>
+<div class="stanza">Like that bud,
+I shall break open and keep blooming.
+<span class="refrain">I am a lamp — I shall keep burning.</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+            <div class="poem" id="sigh">
+                <h2>Sigh</h2>
+                <hr class="poem-divider">
+                <div class="poem-body">
+<div class="stanza"><span class="refrain">Today, I surrender my breath!!</span></div>
+<div class="stanza">The last few leaves still left to me
+lie withered now, and dry;
+into your storm let me pour out
+the last of myself as an offering!</div>
+<div class="stanza"><span class="refrain">Today, I surrender my breath!!</span></div>
+<div class="stanza">This is the last sigh
+that I have left;
+I can bear no more —
+I lay my life down at your feet!!</div>
+<div class="stanza"><span class="refrain">Today, I surrender my breath!!</span></div>
+                </div>
+                <a class="top-link" href="#top">&uarr; Contents</a>
+            </div>
+        </div>
+    </div>
+
+    <script data-goatcounter="https://mukulranjan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

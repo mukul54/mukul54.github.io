@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,60 +15,10 @@
             background: #f5f0eb;
         }
 
-        .bg-fixed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('static/image_gpt_image.png') no-repeat center top;
-            background-size: 100% auto;
-            z-index: -2;
-        }
-
-        .bg-fade {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                rgba(255,255,255,0.3) 0%,
-                rgba(255,255,255,0.75) 30%,
-                rgba(255,255,255,0.92) 50%,
-                #fff 70%
-            );
-            z-index: -1;
-        }
-
-        .page-overlay {
-            position: relative;
-            min-height: 100vh;
-        }
-
         .content {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .hero-credit {
-            font-size: 0.6em;
-            color: #aaa;
-            text-align: right;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            font-weight: 400;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 40px;
+            padding: 40px 20px 80px;
         }
 
         .back-link {
@@ -83,1228 +33,131 @@
             color: #333;
         }
 
-        .toc {
-            margin-bottom: 60px;
-            padding-bottom: 60px;
-            border-bottom: 1px solid #e0e0e0;
+        h1 {
+            font-size: 2.5em;
+            font-weight: 400;
+            margin-bottom: 5px;
         }
 
-        .toc h2 {
-            font-size: 1.3em;
-            font-weight: 500;
-            margin: 0 0 16px 0;
-            color: #222;
-        }
-
-        .toc ol {
-            margin: 0;
-            padding-left: 1.6em;
-            columns: 2;
-            column-gap: 40px;
-            font-size: 0.95em;
-            line-height: 1.9;
-        }
-
-        .toc li {
-            break-inside: avoid;
-        }
-
-        .toc a {
-            color: #444;
-            text-decoration: none;
-        }
-
-        .toc a:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .poem {
-            margin-bottom: 60px;
-            padding-bottom: 60px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .poem:last-child {
-            border-bottom: none;
-        }
-
-        .poem h2 {
-            font-size: 1.6em;
-            font-weight: 500;
-            margin: 0 0 6px 0;
-            color: #222;
-        }
-
-        .poem-body {
-            white-space: pre-line;
-            font-size: 1.05em;
-            line-height: 2;
-        }
-
-        .poem-body .refrain {
-            font-weight: 600;
-            color: #222;
-        }
-
-        .poem-body .stanza {
-            margin-bottom: 28px;
-        }
-
-        .poem-body .section-num {
-            text-align: center;
-            font-weight: 600;
-            color: #555;
-            letter-spacing: 2px;
-            margin: 8px 0 20px 0;
-        }
-
-        .top-link {
-            display: inline-block;
-            margin-top: 8px;
-            font-size: 0.8em;
-            color: #aaa;
-            text-decoration: none;
-        }
-
-        .top-link:hover {
+        .subtitle {
+            font-size: 1.1em;
             color: #666;
+            margin-bottom: 50px;
         }
 
-        hr.poem-divider {
-            border: none;
-            border-top: 1px solid #ddd;
-            margin: 8px 0 20px 0;
-            width: 60px;
+        .shelf {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 48px 40px;
         }
 
-        @media (max-width: 600px) {
-            .toc ol {
-                columns: 1;
-            }
+        .book {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .cover {
+            position: relative;
+            aspect-ratio: 2 / 3;
+            background: #ddd url('static/cover_swapn-aur-uchchhwas.jpg') center / cover no-repeat;
+            border-radius: 3px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .book:hover .cover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .cover-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 48px 18px 22px;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.85) 35%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .cover-text .title {
+            font-size: 1.55em;
+            line-height: 1.3;
+            color: #222;
+        }
+
+        .cover-text .sub {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .cover-text .author {
+            font-size: 0.85em;
+            color: #444;
+            margin-top: 12px;
+            letter-spacing: 1px;
+        }
+
+        .book-meta {
+            margin-top: 16px;
+        }
+
+        .book-meta .name {
+            font-size: 1.1em;
+            color: #222;
+        }
+
+        .book-meta .desc {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.5;
+            margin-top: 2px;
+        }
+
+        .book:hover .book-meta .name {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="bg-fixed"></div>
-    <div class="bg-fade"></div>
-    <div class="page-overlay">
-        <div class="content">
-            <p class="hero-credit">Background illustration generated with ChatGPT</p>
+    <div class="content">
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
 
-            <a href="index.html" class="back-link">&larr; Back to Home</a>
+        <h1>Poetry</h1>
+        <p class="subtitle">कविताएँ</p>
 
-            <h1 id="top">स्वप्न और उच्छ्वास</h1>
-            <p class="subtitle">कविताएँ &middot; Hindi poems, mostly from my school days</p>
+        <div class="shelf">
+            <a class="book" href="poetry/swapn-aur-uchchhwas.html">
+                <div class="cover">
+                    <div class="cover-text">
+                        <div class="title">स्वप्न और उच्छ्वास</div>
+                        <div class="sub">कविताएँ</div>
+                        <div class="author">मुकुल रंजन</div>
+                    </div>
+                </div>
+                <div class="book-meta">
+                    <div class="name">स्वप्न और उच्छ्वास</div>
+                    <div class="desc">Hindi poems, mostly from my school days.</div>
+                </div>
+            </a>
 
-            <div class="toc">
-                <h2>अनुक्रम</h2>
-                <ol>
-                    <li><a href="#swapn">स्वप्न</a></li>
-                    <li><a href="#saath-agar">साथ अगर जो तुम होती</a></li>
-                    <li><a href="#aahwan">आह्वान</a></li>
-                    <li><a href="#main-kavi-nahin">मैं कवि नहीं</a></li>
-                    <li><a href="#shakti-aur-sankalp">शक्ति और संकल्प</a></li>
-                    <li><a href="#priyatam-kaho">प्रियतम कहो</a></li>
-                    <li><a href="#dhuan-se-hi">धुआँ से ही</a></li>
-                    <li><a href="#aaj-pritam">आज प्रीतम</a></li>
-                    <li><a href="#jab-kabhi">जब कभी</a></li>
-                    <li><a href="#naya-saal">नया साल नयी आशाएँ</a></li>
-                    <li><a href="#wah-tara">वह तारा</a></li>
-                    <li><a href="#rota-kab-tha">रोता कब था! कब रोता हूँ!!</a></li>
-                    <li><a href="#punarnirman">पुनर्निर्माण</a></li>
-                    <li><a href="#achha-laga">अच्छा लगा</a></li>
-                    <li><a href="#paristhitiyan-aur-soch">परिस्थितियाँ और सोच</a></li>
-                    <li><a href="#seekh-taron-ki">सीख : तारों की</a></li>
-                    <li><a href="#tera-swar">तेरा स्वर</a></li>
-                    <li><a href="#aaj-khilne-do">आज खिलने दो मुकुल को।</a></li>
-                    <li><a href="#tum">तुम</a></li>
-                    <li><a href="#kavita-se-ruthe-shabd">कविता से रूठे शब्द</a></li>
-                    <li><a href="#main-kavi-nahin-jiske-dil-mein">मैं कवि नहीं जिसके दिल में</a></li>
-                    <li><a href="#rutha-raag">रूठा राग</a></li>
-                    <li><a href="#jab-ek-apna-ruthta-hai">जब एक अपना रूठता है</a></li>
-                    <li><a href="#tum-kahan-ho">तुम कहाँ हो ?</a></li>
-                    <li><a href="#drishti">दृष्टि</a></li>
-                    <li><a href="#main-aur-tum-1">मैं और तुम - I (हमारी कल्पना)</a></li>
-                    <li><a href="#main-aur-tum-2">मैं और तुम - II (तुम्हारी उत्कृष्टता)</a></li>
-                    <li><a href="#main-aur-tum-3">मैं और तुम - III (मेरी तुच्छता)</a></li>
-                    <li><a href="#tumhara-chitra">तुम्हारा चित्र</a></li>
-                    <li><a href="#deep-hoon">दीप हूँ, जलता रहूँगा</a></li>
-                    <li><a href="#uchchhwas">उच्छ्वास</a></li>
-                </ol>
-            </div>
-            <div class="poem" id="swapn">
-                <h2>स्वप्न</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">जो लड़खड़ा रहा हूँ मैं
-क्या स्वप्न का ये अंत है।
-जो तिलमिलाता है कहीं,
-वो दूर है या है यहीं।
-जो सिसकियाँ हूँ सुन रहा,
-वो कौन रोता है कहाँ।
-जो द्वीप की तलाश में
-है नाव गोता खा रही,
-वो नाव में हूँ आज मैं
-या नाव मैं ही बन गया।</div>
-<div class="stanza">है स्वप्न ये या स्वप्न से
-अधूरी टूटी नींद है?
-कुछ जल रहा है सच में
-या जली हुई उम्मीद है?
-जो स्वप्न ही है सच अगर
-तो जागकर मैं क्या करूँ!
-आरंभ ही जो अंत है,
-तो अंत से मैं क्यूँ डरूँ?</div>
+            <a class="book" href="poetry/dream-and-sigh.html">
+                <div class="cover">
+                    <div class="cover-text">
+                        <div class="title">Dream and Sigh</div>
+                        <div class="sub"><em>Swapn aur Uchchhwas</em><br>Poems, translated from the Hindi</div>
+                        <div class="author">Mukul Ranjan</div>
+                    </div>
                 </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="saath-agar">
-                <h2>साथ अगर जो तुम होती</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">ग़म के सागर के बीच हुए,</span>
-<span class="refrain">जीवन-सुख के इस मधुर मिलन में,</span>
-<span class="refrain">साथ अगर जो, तुम होती! -2</span></div>
-<div class="stanza">दुख-सागर के जलजात लहर
-से ही अब तक बढ़ता आया मैं,
-हर लहरों से आज तलक
-बिन तेरे ही लड़ता आया मैं।</div>
-<div class="stanza">पर आज मिली सुख की नैया तो,
-दिल ने हर्षित हो मुझे कहा -</div>
-<div class="stanza"><span class="refrain">ग़म के सागर के बीच हुए,</span>
-<span class="refrain">जीवन-सुख के इस मधुर मिलन में;</span>
-<span class="refrain">साथ अगर जो तुम होती।</span></div>
-<div class="stanza">अँधियारों के इस सागर में,
-जाने कितने तूफ़ाँ आये।
-भटका मैं कितनी बार यहाँ,
-काले घन कितने हैं छाये</div>
-<div class="stanza">ख़ामोश रहा यह आस लिए,
-इक दिन दुःख ये झर जायेंगे।
-तुम जब मुझको मिल जाओगी,
-बादल सारे छट जायेंगे।</div>
-<div class="stanza">पर पूर्व मिलन की छोटी सी,
-ख़ुशियाँ जो मिली मेरे दिल को।
-तब इसने उन्मादित होकर,
-रोकर चुपके से मुझे कहा -</div>
-<div class="stanza"><span class="refrain">ग़म के सागर के बीच हुए</span>
-<span class="refrain">जीवन सुख के इस मधुर मिलन में</span>
-<span class="refrain">साथ अगर जो तुम होती।</span></div>
-<div class="stanza">कि वर्षों से आदर्श मेरे,
-तारे भी मुझको दिख न सके।
-काले-काले घन की बूँदों
-संग मेरे ये आँसू बरसे।</div>
-<div class="stanza">दुःख जलधि के तूफ़ाँ में भी,
-किस तरह मैं आगे बढ़ पाया।</div>
-<div class="stanza">तारे सूरज औ' चाँद बिना,
-अंधेरों में चलता आया।</div>
-<div class="stanza">पर देख कहीं की झिलमिल को,
-दीपक-लौ समझा मेरा मन,
-औ' आह्लादित होकर रोकर
-धीरे धीरे से मुझे कहा -</div>
-<div class="stanza"><span class="refrain">ग़म के सागर के बीच हुए</span>
-<span class="refrain">जीवन-सुख के इस मधुर मिलन में</span>
-<span class="refrain">साथ अगर जो तुम होती।</span></div>
-<div class="stanza">मैं कैसे-कैसे चल पाया हूँ,
-काश तुझे बतला पाता।
-इस दुखद सफर के सुखद प्रहर
-में, साथ जो तेरे हो पाता।</div>
-<div class="stanza">फिर भी तेरी ही आस लिए,
-चल रहा हूँ मैं तो सदियों से।
-दिल में छोटी सी प्यास लिए
-चल रहा हूँ मैं तो सदियों से।</div>
-<div class="stanza">पर अंधेरों में इक नयी रोशनी
-सी जो दिखी है मुझको तो
-चुप होकर औ' खुद में खोकर
-मैंने चुपके से दिल को कहा</div>
-<div class="stanza"><span class="refrain">आने वाली उस नौका में</span>
-<span class="refrain">काश अगर जो तुम होती।</span></div>
+                <div class="book-meta">
+                    <div class="name">Dream and Sigh</div>
+                    <div class="desc">English translation of स्वप्न और उच्छ्वास, by Claude Opus 5.5.</div>
                 </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="aahwan">
-                <h2>आह्वान</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">तुझको पुकारा आज फिर मेरे हृदय ने!</span></div>
-<div class="stanza">सावन - घटा घनघोर थी छाई हुई,
-मन में नयी थी एक मादकता भरी।
-जलनिधि लहर सम मैं तरंगित हो उठा,
-ऐसा लगा तुमने मुझे जैसे छुआ।</div>
-<div class="stanza">खुशियों भरी उन्माद के हों इस समय में,
-<span class="refrain">आज फिर तुझको पुकारा इस हृदय ने।</span></div>
-<div class="stanza">खोकर खुदी को खोजने फिर मैं चला,
-तस्वीर, तेरी बादलों की नीर में।
-हर बूँद में दिखने मुझे जब तू लगी,
-दिल में नयी तब एक सुंदरता जगी।।</div>
-<div class="stanza">सौंदर्य पूरित दिल के हैं मधुमय निलय में,
-<span class="refrain">आज फिर तुझको पुकारा इस हृदय ने!!</span></div>
-<div class="stanza">स्याह नभ में भी एक दिख चाँद था,
-हाँ बादलों से भी भरी उस रात में।
-मग्न होकर देखने फिर मैं लगा,
-मुखड़ा तेरा उस रात की बरसात में।।</div>
-<div class="stanza">दिल में बजे संगीत के हर एक लय में,
-<span class="refrain">आज फिर तुझको पुकारा इस हृदय ने!!</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="main-kavi-nahin">
-                <h2>मैं कवि नहीं</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">मैं कवि नहीं कोई रस का,</span>
-<span class="refrain">मैं तो बस व्यथा सुनाता हूँ।</span>
-जिसमे विराग का भाव भरा,
-मैं राग वही तो गाता हूँ।
-मैं कवि - - - - - - -</div>
-<div class="stanza">रूठे कितने अपने मुझसे,
-मेरी कविता का भाव यही,
-आये थे जो भी साथ मेरे,
-वो गये छोड़ हाँ मुझे कहीं।</div>
-<div class="stanza">ले भाव यही हर वक्त, सदा
-मैं अपनी कलम चलाता हूँ।
-<span class="refrain">मैं कवि नहीं कोई रस का,</span>
-<span class="refrain">मैं तो बस व्यथा सुनाता हूँ।</span></div>
-<div class="stanza">देख व्यथा चंदा चकोर की,
-बादल के बिन दशा मोर की।
-करुणा जो फूटती है दिल में,
-तब कलम रोक नहीं पाता हूँ।</div>
-<div class="stanza"><span class="refrain">मैं कवि नहीं कोई रस का,</span>
-<span class="refrain">मैं तो बस व्यथा सुनाता हूँ।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="shakti-aur-sankalp">
-                <h2>शक्ति और संकल्प</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">मैं राह बनाता हूँ साथी,</span>
-<span class="refrain">पर साथ मेरे तुम भी आना।</span>
-ख्वाबों के इस मंजिल पथ पर,
-हाँ अब भूल कहीं न तुम जाना।</div>
-<div class="stanza">तेरे पदचापों को ही सुन,
-मैं कदम बढ़ा ये पाऊँगा।
-तेरी खुशबू से ही तो मैं,
-पथ को सुरक्षित कर पाऊँगा।</div>
-<div class="stanza">पथ-कंटक दूर हटाता हूँ,
-तुम प्रेम इसे देती जाना।
-<span class="refrain">मैं राह बनाता हूँ साथी,</span>
-<span class="refrain">पर साथ मेरे तुम भी आना।</span></div>
-<div class="stanza">मैं भाग्यवान हूँ जो तेरा,
-ये साथ मुझे है अभी मिला।
-है शक्ति मिली हर रज-कण को,
-हर सपनों को विश्वास मिला।</div>
-<div class="stanza">संकल्प किये मैं जाता हूँ,
-तुम शक्ति मुझे देती जाना।
-<span class="refrain">मैं राह बनाता हूँ साथी,</span>
-<span class="refrain">पर साथ मेरे तुम भी आना।</span></div>
-<div class="stanza">पथ के रज-कण हैं एक नहीं,
-अब एक इन्हे करना होगा।
-और रुके नहीं ये जग सारा,
-इसलिए हमें बदलना होगा।</div>
-<div class="stanza">मैं साहस देता जाता हूँ,
-विश्वास नया देती जाना।
-<span class="refrain">मैं राह बनाता हूँ साथी,</span>
-<span class="refrain">पर साथ मेरे तुम भी आना।।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="priyatam-kaho">
-                <h2>प्रियतम कहो</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="section-num">I</div>
-<div class="stanza">अपने पथ का पाथेय कहाँ, कुछ भी तो बच पाया है?
-<span class="refrain">प्रियतम कहो क्या लौट चलें, मन मेरा घबराया है?</span></div>
-<div class="stanza">मंजिल की यादें मुझे सदा, रह रहकर तड़पाती है;
-तड़प भरे इस पथ पे जाने, तूफाँ कैसा आया है।
-प्रियतम कहो - - - - - - -</div>
-<div class="stanza">सफर आधा जब बचा हुआ है, मन टूटा जाता है,
-हर कोने में इस दिल के भय, जाने कैसा छाया है।
-प्रियतम कहो - - - - - - -</div>
-<div class="stanza">जब भरी पड़ी काँटों से ही, आगे की वो राहें हैं,
-आहों से ही तो भरा हुआ पथ ये कैसा आया है।
-प्रियतम कहो - - - - - - -</div>
-<div class="section-num">II</div>
-<div class="stanza">नहीं प्रिय! हैं साथ जो हम, तो घबराने की बात है क्या?
-<span class="refrain">अब नहीं प्रिय! हम लौटें मत, अब ही तो समर आया है।</span>
-खत्म हुआ है आधा सफर अब पीछे मुड़कर मत देखो,
-चुभने दो उन काँटों को जो चुभता अब तक आया है।
-अब नहीं प्रिय! - - - - - - -</div>
-<div class="stanza">प्रेम शक्ति से हम चल लेंगे, पथ जो भी बच पाया है,
-अपना अब तक तो प्यार यही पाथेय बना आया है।
-अब नहीं प्रिय! - - - - - - -</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="dhuan-se-hi">
-                <h2>धुआँ से ही</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">धुआँ से ही बना रहा, सदा से मेरा आशियाँ,</span>
-<span class="refrain">कभी तो ख्वाब में भी मेरे वो परी मिली नहीं।</span></div>
-<div class="stanza">जिसपे मैंने लिख दिया, न जाने ग़ज़लें कितने ही,
-कमल सी उसकी आँखे मेरे सामने खुली नहीं।
-धुआँ से ही - - - - - - -</div>
-<div class="stanza">मुस्कान जिसकी देखकर कि शर्म खायी चाँदनी,
-सामने मेरे कभी तो वो कभी खिली नहीं।
-धुआँ से ही - - - - - - -</div>
-<div class="stanza">संग जिसके मैं चला जमीं से लेके चाँद तक,
-इक कदम भी संग मेरे वो कभी चली नहीं।
-धुआँ से ही बना रहा - - - - - - -</div>
-<div class="stanza">पूछता रहा जहाँ कि है कहाँ और कौन 'वो',
-मगर मुझे तो आज तक 'वो', कभी मिली नहीं।
-धुआँ से ही बना - - - - - - -</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="aaj-pritam">
-                <h2>आज प्रीतम</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">आज प्रीतम, प्रीत तेरी, मैं करूँ स्वीकार कैसे?</span></div>
-<div class="stanza">जिस जहाँ ने तो सदा से प्यार को समझा गलत है,
-उस जहाँ के सामने, बोलो, करूँ मैं प्यार कैसे?
-आज प्रीतम, . . .</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="jab-kabhi">
-                <h2>जब कभी</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">जब कभी भी मैं सफर में टूट जाता हूँ,
-जिंदगी से भी कभी जब रूठ जाता हूँ।
-है मेरा कुछ भी नहीं ऐसा जो लगता है,
-और भीतर जब कभी तूफाँ सा जगता है।
-उस समय भी पास आकर तुम मनाती हो,
-टूटे हुए अरमान को तुम ही सजाती हो।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="naya-saal">
-                <h2>नया साल नयी आशाएँ</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">नये साल में कोई भी,
-रूठे न किसी से दुनिया में।
-नये साल में कोई भी,
-टूटे न किसी से दुनिया में।</div>
-<div class="stanza">नये साल के रंगों में,
-अब इंद्रधनुषी मान मिले।
-विश्वास किसी का न टूटे,
-हर अधरों को मुस्कान मिले।</div>
-<div class="stanza">जग के क्रंदन से बहे नीर,
-को भी अब इक अरमान मिले।
-अश्रु सिंधु की लहरों को भी,
-नयी-नयी पहचान मिले।</div>
-<div class="stanza">नये साल की नयी सोच से,
-सबको अब सम्मान मिले।
-विश्वास किसी का न टूटे,
-हर अधरों को मुस्कान मिले।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="wah-tara">
-                <h2>वह तारा</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">वह तारा
-जिसे मैं रोज देखता हूँ
-आकाश के एक कोने में
-चमकता हुआ,</div>
-<div class="stanza">पिछले साल
-जब मैंने उसे देखा था
-पहली बार
-हजारों तारें चमक रहें थे
-उसके पास
-मगर सबसे ज्यादा चमक
-उसी की थी।</div>
-<div class="stanza">पता नहीं क्यों
-धीरे-धीरे सभी तारें
-दूर हो गये उससे
-और आज मैंने
-जब उसे देखा
-तो भर आयी
-मेरी आँखें</div>
-<div class="stanza">क्योंकि उस कोने में,
-आज वह अकेला था</div>
-<div class="stanza">परन्तु
-मुझे बहुत आश्चर्य हुआ
-क्योंकि उसकी चमक
-आज भी उतनी ही थी!</div>
-<div class="stanza">आज भी
-वह मुस्कुरा रहा था
-उसी तरह
-जिस तरह मैंने उसे
-पहली बार देखा था!</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="rota-kab-tha">
-                <h2>रोता कब था! कब रोता हूँ!!</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-<div class="stanza">काली रातों की बाहों में,
-तारे ही गिनते नयनों को जब,
-सपने झिलमिल लगते हैं तब,
-आह हृदय की सुन लेता हूँ।</div>
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-<div class="stanza">दूर कभी मंजिल लगती जब,
-और भटका सा राह लगे, तब
-हाथ पकड़ अपने साथी के,
-नयननीर संग बह लेता हूँ।</div>
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-<div class="stanza">चलते चलते जीवन पथ पर,
-थक जाता है जब मेरा मन,
-तब छिपकर तकिये के नीचे,
-फूट-फूटकर गा लेता हूँ।</div>
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-<div class="stanza">देख जहाँ मेरे आँसू को
-पागलपन कह हँसता है, पर
-पोंछ नयन के नीर हमेशा,
-हँसकर जग से कह देता हूँ –</div>
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-<div class="stanza">जिसे लोग आँसू कहते हैं,
-वो अमृत मेरे जीवन का,
-छिपकर जग के कोलाहल से,
-उससे दिल तो मैं धोता हूँ।</div>
-<div class="stanza"><span class="refrain">रोता कब था! कब रोता हूँ!!</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="punarnirman">
-                <h2>पुनर्निर्माण</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">उस नीड़ का निर्माण करने मैं चला हूँ आज फिर।</span></div>
-<div class="stanza">आँधियों के उन क्षणों में,
-छोड़ जिसको थे दिये तुम।
-छिन्न-भिन्न जिसके तृणों को
-देख भी लौटे नहीं तुम।</div>
-<div class="stanza">पेड़ टूटे, सूखी पत्तियाँ,
-थे जो नव-कोंपल मुरझाए।
-सूख गयी नवजात कलियाँ,
-बिन तेरे पर तुम नहीं आए।</div>
-<div class="stanza">मैं मगर तेरे बिना ही
-चल पड़ा हूँ आज फिर,
-<span class="refrain">उस नीड़ का निर्माण करने</span>
-<span class="refrain">मैं चला हूँ आज फिर।</span></div>
-<div class="stanza">आज हाँ तेरे बिना ही,
-फिर बनेगा इक सदन।
-जिसमें जलेगा दीप जो,
-दीपित करेगा ये भुवन।</div>
-<div class="stanza">थे उस दीया के घृत तुम,
-और जो जले वो बाती मैं।
-पर तुम गये जब छोड़ के,
-तब बुझ गया था ही वहीं मैं।</div>
-<div class="stanza">पर तिमिर का अंत करने
-मैं अकेला ही जला हूँ, आज फिर,
-<span class="refrain">उस नीड़ का निर्माण करने</span>
-<span class="refrain">मैं चला हूँ आज फिर।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="achha-laga">
-                <h2>अच्छा लगा</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="section-num">I</div>
-<div class="stanza">अच्छा लगा
-जो तुम मिले
-पहली दफ़ा
-मुझसे ।</div>
-<div class="section-num">II</div>
-<div class="stanza">अच्छा लगा
-पहली दफ़ा
-तड़पा जो मैं
-मिलके यहाँ
-तुझसे ।</div>
-<div class="section-num">III</div>
-<div class="stanza">अच्छा लगा
-पहली दफ़ा
-हाँ देखके
-आँसू, कमल सम
-नैन में
-तेरे ।</div>
-<div class="section-num">IV</div>
-<div class="stanza">अच्छा लगा
-पहली दफ़ा
-जब चाहा मैं
-जीवन में हाँ
-दिल से कहीं
-किसीको ।</div>
-<div class="section-num">V</div>
-<div class="stanza">अच्छा लगा
-पहली दफ़ा
-ये जानकर
-तुझसे यहाँ
-कि प्यार में
-होता है हाँ
-कुछ दर्द भी ।</div>
-<div class="section-num">VI</div>
-<div class="stanza">अच्छा लगा,
-पहली दफ़ा,
-समझा जो मैं,
-हर वक्त हाँ,
-दिल से कभी,
-तुमने कहीं
-चाहा नहीं,
-मुझको ।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="paristhitiyan-aur-soch">
-                <h2>परिस्थितियाँ और सोच</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">मेरा परिचय,
-बस इतना ही -
-मैं एक मुकुल,
-खुशबू विहीन ।</div>
-<div class="stanza">खुशियाँ छाई,
-आने से मेरे,
-खुशीहीन,
-सूखी बगिया में ।</div>
-<div class="stanza">फिर बढ़ा मैं,
-लड़ते हुए ।
-जीवन समर में,
-मैं अकेला ।</div>
-<div class="stanza">जन्म लिया मैं,
-उस बगिया में,
-सूखा था जो,
-कई बरसों से ।</div>
-<div class="stanza">आशाएँ बनी,
-इक चाह जगी ।
-सूखे पत्तों में
-सुमनों की ।</div>
-<div class="stanza">सूखी पत्तियाँ;
-हाँ कई बार ।
-सहचरणी बन जो,
-रहती थी ।</div>
-<div class="stanza">सौंदर्य हीन,
-मेरे समान,
-थी सूखी कलियाँ
-और कई ।</div>
-<div class="stanza">बगिया होगी,
-फिर हरी-भरी ।
-सब सुमन सोच,
-पुलकित हो उठे ।</div>
-<div class="stanza">रूठा भी मैं,
-उनके खोने से ।
-रुका नहीं हूँ,
-आज तलक पर ।</div>
-<div class="stanza">जिन्हें देख, यह
-बोध हुआ कि -
-<span class="refrain">संघर्ष ही है सार जीवन का ।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="seekh-taron-ki">
-                <h2>सीख : तारों की</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="section-num">I</div>
-<div class="stanza">मन विकल वेदना से संचित,
-था उर में दर्द-ए-जहाँ भरा ।
-अश्रुपूरित नयनों में था,
-हाँ इक करुणा का नव-गान भरा ।</div>
-<div class="stanza">मैं रुदन सिंधु से निकला तो,
-सम्मुख विस्तृत आकाश मिले ।
-तारों से खचित, आभूषणमय,
-नभ मेरे कितने पास मिले ।</div>
-<div class="stanza">शशि, पनघट सम उस अंबर में,
-थी सुधा थाल सम चारुमयी ।
-सौंदर्य बसा था स्याह में भी,
-जिसे मन-व्यथा न देख सकी ।</div>
-<div class="stanza">करुणामय हृदय को कभी क्या,
-हो सकता है सौंदर्य-बोध है ?
-अश्रु में खुशी को पाने चला,
-तू हाय रे मन कितना अबोध ।</div>
-<div class="stanza">आँसु के कण बरसाता है,
-फिर जगके मरु में आज तू क्यों ?
-खिल सकता ऐसे में मुकुल नहीं,
-फिर खुशी चाहता उनसे तू क्यों ?</div>
-<div class="stanza">था इन्हीं भावना के कारण,
-डूबा मन अश्रु सिंधु में ।
-बह रहे नीर थे नैनों से,
-फिर देख उन्हें हाँ इन्दु में ।</div>
-<div class="section-num">II</div>
-<div class="stanza">संभाल न खुद को जब पाया,
-तो पूछा नभ के तारों से -</div>
-<div class="stanza">ओ ! अनंत द्युति के संवाहक,
-पहुँच गया कैसे वहाँ तू ।
-कैसी थी तेरी जिंदगी,
-कैसा था ग़म, थी कैसी खुशी ।</div>
-<div class="stanza">संकल्प क्या तेरा कभी,
-टूटता था तुझसे नहीं ?
-रस्ते क्या तेरे कभी,
-छूटते थे तुझसे नहीं ?</div>
-<div class="stanza">क्या कभी अपनी जिंदगी में,
-तू स्वयं से हारा नहीं था ?
-अपना क्या तुझसे कभी,
-हो गया पराया नहीं था ?</div>
-<div class="stanza">हर बार क्या ठोकरें तूने,
-खुद से नहीं खायी थी ?
-मंजिल क्या तेरी कभी,
-हुई नहीं पराजय थी ?</div>
-<div class="stanza">क्या कभी तेरे हृतल में,
-लहर उठती थी नहीं ?
-जब
-समझ पाते वो नहीं
-तुमको कभी थे ।</div>
-<div class="stanza">रुदन के सागर में जाके
-क्या कभी तेरा ये मन
-रोता नहीं था ?</div>
-<div class="stanza">हृदय की उस वेदना को,
-तू कहाँ कैसे छुपाता था ?</div>
-<div class="stanza">वेदना से भीगते थे,
-नैन तेरे, क्या नहीं ?</div>
-<div class="stanza">विजन में जाके हमेशा,
-क्या नहीं रोता था तू ?
-उस समय,
-जब रुठ जाते थे तेरे अपने ही तुमसे ।</div>
-<div class="stanza">हारने के बाद जब ये,
-रुठता था मन तुझी से,
-तू उसे कैसे मनाता था ?</div>
-<div class="stanza">बार-बार के हार से जब,
-टूटता था तू खुद से,
-आपगा सम लहरमय इस जीवन में
-हार के ही बीच,
-कैसे तू खुशी को ढूँढ पाता था ?</div>
-<div class="stanza">उत्साह पाया तू कहाँ से,
-आज बतला दे मुझे ।
-अपनी चमक का राज़ तू,
-अब आज समझा दे मुझे ।</div>
-<div class="stanza">करुणाप्रेरित नयन से,
-अश्रु मेरे
-बह रहें जो आज हैं,
-रोक दे तू
-वेदना के इस लहर को
-अब हमेशा के लिए</div>
-<div class="stanza">आज तक समझा नहीं,
-मुझको किसी ने ।
-तू समझ मेरे प्रिय,
-ओ चन्द्रालंकार,
-आदर्श जगत के
-शशि के श्रृंगार ।</div>
-<div class="section-num">III</div>
-<div class="stanza">इस तरह देख निराश मुझको,
-एक तारा लगा बोलने मुझसे :-</div>
-<div class="stanza">मैं भी तो टूटता हूँ,
-आसमाँ से रुठता हूँ ।
-दिखता हूँ किसी दिन तुझे,
-तो खोता हूँ कभी आसमाँ में ।</div>
-<div class="stanza">मुझको भी लगता है ग्रहण,
-ढकती मुझको है तेरी धरा ।
-होता है मेरा भी तो अंत,
-रुठता है जब मुझसे अनंत ।</div>
-<div class="stanza">मैं ही नहीं सबसे महान,
-लाखों हैं भुवन में मेरे समान ।
-बढ़ना है तुझे तो चलता चल,
-बढ़ रहा जगत मत हो अचल ।</div>
-<div class="stanza">चलना है आदि जीवन का,
-रुकना मग में है इसका अंत ।
-सपनों के दीप जलाता चल,
-राहों में हैं मंजिल अनंत ।</div>
-<div class="stanza">पथ के काँटों की नोकों को,
-कदमों से कुचल तू राह बना ।
-चट्टान भी गर आयें मग में,
-चट्टानों से टकराता चल ।</div>
-<div class="stanza">रोकेगा न कोई तुम्हें यहाँ,
-तू अपना कदम बढ़ाता चल ।
-संघर्ष साथी है जीवन का,
-संघर्ष को गले लगाता चल ।</div>
-<div class="stanza">क्या रोक सका है नग, नद,
-की उस धारा को, जो है प्रचंड ।
-तू कदम बढ़ा, हाँ बढ़ा कदम,
-तू कदम बढ़ा और हो अखंड ।</div>
-<div class="stanza">हर रोज नये सपने बनते,
-हर रोज नये अपने बनते ।
-रूठों के लिए वो रोते नहीं,
-जो मंजिल के पथ पर चलते ।</div>
-<div class="stanza">टूटेंगे सारे सपने भी,
-रूठेंगे तुमसे अपने भी ।
-पर टूटना न तू कभी,
-रूठना न तू कभी ।</div>
-<div class="stanza">संकल्प टूटते हैं सबके,
-रस्ते भी छूटते हैं सबके ।
-संघर्षों की इस दुनिया में,
-अपने भी रूठते हैं सबके ।</div>
-<div class="stanza">तू रोक गगन, तू रोक पवन,
-दुनिया की झूठी रीत बदल दे ।
-तुझसे ही जग का राग है ये,
-खिला जो सारा, रीत बदल ।</div>
-<div class="stanza">अपने आँसु कण बरसा के,
-इस जग की मरु को सिंचित कर ।
-सौंदर्य यही है करुणा का,
-जग-खुशी में सबकुछ अर्पित कर ।</div>
-<div class="stanza">मन है अबोध तेरा नहीं,
-जो खुशी ढूँढता आँसु में ।
-आँसु में दिखता असल सत्य,
-सौंदर्य बसा है आँसु में ।</div>
-<div class="stanza">कल का तो तारा तू ही है,
-श्रृंगार निशा का, तू ही शशि ।
-पथप्रदर्शक है ध्रुव तू,
-सृष्टि का जीवन, तू ही रवि ।</div>
-<div class="section-num">IV</div>
-<div class="stanza">मंजिलों की राह में,
-हर मोड़ पर हाँ,
-एक नया तूफान आता,
-तोड़ देता,
-जो सभी,
-सपने नये,
-सुंदर सुरीले ।
-लूट लेता,
-ख्वाब के संसार को ।
-फिर रूठ जाते वो भी जो
-आगे कभी थे,
-जिंदगी में राग बनके ।</div>
-<div class="stanza">संघर्ष कर पुरुषार्थ से,
-जीत लेते,
-हार को भी, नए वो जो,
-मंजिल के पथ पर,
-हर दुखों को छोड़कर,
-अनवरत चलते रहे हैं ।</div>
-<div class="stanza">तूफान भी थम जाता है,
-संघर्ष उनका देखकर,
-आते हैं वो भी लौटकर,
-जो छोड़कर थे जा चुके ।</div>
-<div class="stanza">ये सभी हैं सत्य जीवन के,
-इसे स्वीकार ले कि -
-हर दुःखों के बाद जीवन में,
-नया उल्लास आता है,
-नये सपने हैं सजते,
-फिर हमेशा की तरह,
-नवदीप जलते हैं, खुशी के ।</div>
-<div class="stanza">फिर खलता है क्यों अभी तू
-रूठ मत संघर्ष कर -</div>
-<div class="stanza">इक का नहीं तू हमसफर,
-है इक नहीं तेरी प्रिया ।
-है कर्म तेरी संगिनी,
-है कर्म तेरी भार्या !</div>
-<div class="section-num">V</div>
-<div class="stanza">कीर्ति रश्मियाँ सभी,
-हैं राह देखती तेरी,
-अजेय तुम उठो अभी,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="stanza">भारती का भार है,
-ओ धीर प्राज्ञ, ओ प्रखर,
-समीर सम तू कभी,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="stanza">कनक सरिस चमक तेरी,
-द्युती नहीं घटे कहीं,
-कि सूर्य तुम चले-चलो,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="stanza">मयंक स्याह नैन का,
-सुधामयी तू चंद्रिका,
-शशि प्रभा चले-चलो,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="stanza">अवनि तनय प्रवीर तू,
-प्रबुद्ध ज्ञान वीर तू ।
-राष्ट्र विभूति सुधे,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="stanza">अनंत-विस्तृत उरे,
-उथल-पुथल मचे नहीं ।
-ज्वलंत कल्पना करे ,
-<span class="refrain">रुको नहीं, रुको नहीं ।</span></div>
-<div class="section-num">VI</div>
-<div class="stanza">आदित्य तू नवविश्व का,
-नवज्ञान का आलोक तू ।
-तू इस धरा का मान है,
-है खुद नया तूफान तू ।</div>
-<div class="stanza">अंधकार इस संसार का,
-हाँ दूर होगा तुमसे ही ।
-अब मत बुझा, हाँ अब मत बुझा,
-खुद को अभी तू मत बुझा ।</div>
-<div class="stanza">मत हार तू उस हार से,
-जो क्षणिक है तेरे लिए ।
-संघर्ष कर तूफान से,
-जगप्रीति पाने के लिए ।</div>
-<div class="stanza">तू दीप है, संसार का,
-तू गीत है, हर प्यार का ।
-पहचान तू, पहचान है,
-खुद को अभी से जान रे ।</div>
-<div class="stanza">हार से मत हार रे,
-तेरा सकल संसार रे ।
-जीत से गर प्रीति है तो,
-हार भी स्वीकार रे ।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="tera-swar">
-                <h2>तेरा स्वर</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">सुधामयी इस सुखद प्रहर में कुछ तो बोलो, हे प्रियवर
-संग मेरे सारी दुनिया है उत्सुक सुनने तेरा स्वर ।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="aaj-khilne-do">
-                <h2>आज खिलने दो मुकुल को।</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">भ्रमर के इक प्रीत के बिन,
-है झुलसते रात औ' दिन।
-कब तलक नाले-नहर के बीच खड़ते ये रहेंगे,
-कब तलक संसार से हो दूर बढ़ते ये रहेंगे।</div>
-<div class="stanza">भ्रमर के हर प्रीत से तो
-आज मिलने दो मुकुल को।
-अब नहीं किरणों को रोको,
-<span class="refrain">आज खिलने दो मुकुल को।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="tum">
-                <h2>तुम</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">मेरी चाहतों को आके रूप है दी आपने,
-आपसे ही सजता कि मेरा ये महफ़िल है।
-दूर हो भले ही आप मुझसे मगर,
-इस दिल में मेरा तो आपका ही दिल है।</div>
-<div class="stanza">है मेरी ये तमन्ना कि याद मुझको रखना,
-कि तुमको मैं भुला दूँ हाँ काम ये मुश्किल है।
-ये धड़कन, ये साँसे तुझी पे क़ुर्बाँ है,
-रास्ता मेरा तू, औ' तू ही तो मंज़िल है।</div>
-<div class="stanza">पहचान मेरी है तू, अनजान सी परी है,
-मेरी ख़ुशी के लम्हों में तू ही तू खड़ी है।
-क्यूँ सता रहे हो, अब तो पास आओ,
-बिन तेरे ओ प्रियतम बेजान सा ये दिल है।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="kavita-se-ruthe-shabd">
-                <h2>कविता से रूठे शब्द</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="section-num">1.</div>
-<div class="stanza">मेरी दास्ताँ बेज़ुबाँ है,
-समझता जिसे कोई कहाँ है,
-दिल के दर्द को दिल में ही रखता हूँ,
-फिर भी ख़फ़ा मुझसे सारा जहाँ है।</div>
-<div class="section-num">2.</div>
-<div class="stanza">क्यूँ तुझे मैं चाहकर भी भूल पाता हूँ नहीं ?
-ज़िंदगी मेरी बनी हो क्यूँ ओ प्रीतम आज भी?
-हर तरफ़ ख़ामोशियाँ हैं, छा रही तेरे बिना,
-ख़ामोशियों में भी सदा आवाज़ क्यूँ देती रही ?</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="main-kavi-nahin-jiske-dil-mein">
-                <h2>मैं कवि नहीं जिसके दिल में</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">मैं कवि नहीं जिसके दिल में,
-भावो की सरिता बहती है।
-मेरी तो रूठी कविता को,
-दुनिया तुकबंदी कहती है।</div>
-<div class="stanza">तुम भी कविता मेरी सुनकर,
-हँस दोगे ये डर लगता है।
-फिर भी हाँ आज निडर होकर,
-मेरा कवि तुमसे कहता है! -</div>
-<div class="stanza">भाव सभी रूठी कविता की,
-प्रियतम! मेरी हाँ तुम ही हो।
-तुम कौन हो मैं ये न जानूँ,
-पर भावों की ध्वनि तुम ही हो।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="rutha-raag">
-                <h2>रूठा राग</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">मैं जगत का गीत बनना चाहता हूँ,
-मैं किसी का मीत बनना चाहता हूँ।</div>
-<div class="stanza">पर न जाने आज तक क्यों,
-साथ किसी का मिल न पाया।
-बन सका न आज तक मैं,
-हाँ किसी का भी इक साया।</div>
-<div class="stanza">हाथ पकड़ा था किसी का,
-स्वप्न के उस गोद में।
-औ' ख़ुशी से झूमता था,
-साथ उसके मोद में।</div>
-<div class="stanza">पर न जाने स्वप्न से भी,
-साथ गया छूट अब क्यूँ?
-वह सुनहला राग, जाने
-गया है रूठ अब क्यूँ?</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="jab-ek-apna-ruthta-hai">
-                <h2>जब एक अपना रूठता है</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">टूटते हुए देखा है मैंने
-सामने एक परिवार को
-घर के लोग बिछड़ रहे थे
-पर किसी की आँखे भरी नहीं
-शायद कोई विवाद होगा
-मैंने ये सोचा।</div>
-<div class="stanza">टूटते हुए देखा है मैंने,
-डाली को एक पेड़ से,
-सारे पत्ते नीचे गिर रहे थे
-पर पेड़ ने उसे रोका भी नहीं।
-शायद वे लाचार होंगे,
-मैंने ये सोचा।</div>
-<div class="stanza">पर जब एक सपना टूटता है,
-जब कोई अपना छूटता है
-तो क्या होता है,
-मैंने उसे भी देखा है,
-इन्हीं आँखों से,
-मैंने तो रोका भी
-पर नहीं रुका वो
-शायद रूठा होगा मुझसे
-मैंने ये सोचा।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="tum-kahan-ho">
-                <h2>तुम कहाँ हो ?</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">आसमाँ के तारों को देख करके,
-मन हमेशा पूछता है -
-इस गगन में,
-<span class="refrain">तुम कहाँ हो ?</span></div>
-<div class="stanza">जलधि सम इस शांत चित में,
-है कभी लहरें जो उठती,
-तो नया तूफ़ान आता,
-जी मचलता,
-आग लगती इस बदन में।</div>
-<div class="stanza">बदलूँ दिशायें इन पवन की,
-इक नया संसार रच दूँ।
-इन सभी के बीच में,
-मुझको नया विश्वास देकर,
-मन हमेशा पूछता है -
-बदलते जहाँ के,
-इस समय में,
-<span class="refrain">तुम कहाँ हो ?</span></div>
-<div class="stanza">वक्त की बदली अदायें,
-इक नया जब राग जागा,
-रीत बदली इस जगत की,
-हार का सब भीत भागा।
-चाह आयी,
-चाहने की इस जगत को।
-सबको बदल दूँ,
-जीत लूँ दुनिया के दिल को।</div>
-<div class="stanza">पर 'अभी' को जान करके,
-मन हमेशा पूछता है -
-खुशियाँ भरी संसार के हों,
-इस क्षण में,
-<span class="refrain">तुम कहाँ हो ?</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="drishti">
-                <h2>दृष्टि</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">ये आँखें कुछ कहना चाहती हैं
-बताना चाहती है -
-तड़प जिंदगी की,
-परिणाम चाह का
-और दर्द नजरिया का।</div>
-<div class="stanza">सब कुछ दिखाना चाहती है लोगों को,
-अंधेरे में भी, खुद की नूर से।</div>
-<div class="stanza">अब तड़प ही इसकी कहानी है
-और शायद आवाज भी।
-चमक उठती थी कभी ये देख कर जिसे,
-हटती थी ही नहीं जिस सूरत से,
-आज उसे देख सहम जाती है,
-और शर्म से झुक जाती है,
-ये आँखें जो कुछ कहना चाहती है।</div>
-<div class="stanza">सच्चाई किसे बताये फरेबों के बीच,
-हर कोई हो गया है पराया जब यहाँ
-जब रूठ गया हो अपना ही खुद से
-तो दुनिया क्या समझेगी दर्द का कारवाँ</div>
-<div class="stanza">संसार की बेरहमी को
-शायद भूल जायेगी ये
-क्योंकि,
-खुद को पहचानती है ये
-और जानती है,
-दुनिया की हकीकत को,
-हसरत की सच्चाई
-और समय के बदलते अंदाज को
-बदलती सोच
-और बदलते समाज को।
-और
-शायद उस सूरत को भी...</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="main-aur-tum-1">
-                <h2>मैं और तुम - I (हमारी कल्पना)</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">अब साथ रहूँ मैं तेरे ही,
-जिंदगी ये मुझसे कह रही।
-मेरा ये जीवन तेरा हो,
-हाँ ! चाहत अब इक रही यही।</div>
-<div class="stanza">चाँदनी बन तू मुझ चाँद का,
-जग में जिससे उजियाला हो।
-मिट जाए रजनी नफरत की,
-इंसान प्रेम का प्याला हो।</div>
-<div class="stanza">उन प्यालों के हाला हो हम,
-कर दें मतवाला इस जग को।
-प्रेम-सुधा का पान करायें,
-आ मिलके हम दोनों सब को।</div>
-<div class="stanza">मतवालों को उस दुनिया में,
-हम प्रेम लुटानेवाले हों।
-फिर जागे सबमें प्रेम पिपासा
-हम प्यालों के रखवाले हों।</div>
-<div class="stanza">खोलो नयन, ओ! मृगनयनी
-और देखो,
-मनुज कितना सानन्द होगा।
-प्रेम से युक्त उस दुनिया में,
-वाह! कैसा आनंद होगा।</div>
-<div class="stanza">जहाँ लोग प्रेम को पूजेंगे,
-क्या कहीं वहाँ वे गम होगा?
-न द्रौपदी चीर-हरण होगा,
-न महाभारत का रण होगा।</div>
-<div class="stanza">इंसान सभी हाँ सम होंगे,
-जब प्रेम कभी न कम होगा।
-देवत्व सभी ही पायेंगे,
-जब हम दोनों एक हो जायेंगे।</div>
-<div class="stanza">मानवतामय उस दुनिया का
-आ प्रेम से निर्माण करें।
-बन शिव-उमा हम दोनों
-नफरत-विष का विषपान करें।</div>
-<div class="stanza">जब हलाहल कंठ से उतरेगा,
-उसे रोक जग को बचाना तुम।
-मैं नीलकंठ कहलाऊँगा,
-और, जगदम्बा बन जाना तुम।</div>
-<div class="stanza">क्या मिल सकते नहीं हम दोनों
-पूरा करने ये सब सपने।
-आ साथ दे ओ चन्द्रमुखी,
-चल नव-जग का निर्माण करने।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="main-aur-tum-2">
-                <h2>मैं और तुम - II (तुम्हारी उत्कृष्टता)</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">तू गीत है, मैं राग हूँ।
-है कंठ तू, आवाज़ हूँ।
-तेरे बिना मैं कुछ नहीं।
-तू है जहाँ मैं भी वहीं।</div>
-<div class="stanza">तू गर धरा, मैं धूल हूँ।
-खुशबू अगर मैं फूल हूँ।
-हूँ चाँद मैं तू चाँदनी।
-मेरे लिए ही तू बनी।</div>
-<div class="stanza">तू जिंदगी मैं चाह हूँ।
-तू मंजिले मैं राह हूँ।
-मैं चाहतें तू प्यार है।
-बगिया हूँ मैं तू बहार है।</div>
-<div class="stanza">तुमसे बने दुनिया मेरी।
-मुझसे बने दुनिया तेरी।
-है ख्वाब अब इतना सा ही।</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="main-aur-tum-3">
-                <h2>मैं और तुम - III (मेरी तुच्छता)</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">तू शांत सुधामय निश्चल जलधि,
-मैं लहरमय आपगा हूँ।
-ढूँढता फिरता कहीं से,
-पास तेरे आ गया हूँ।</div>
-<div class="stanza">दे जगह अपने हृदय में,
-कि मैं तेरे पास रह लूँ।
-मैं हमेशा हर दुःखों को,
-अब तो तेरे साथ सह लूँ।</div>
-<div class="stanza">मेरी खुशी मेरी उदासी,
-है तेरे प्रीति की प्यासी।
-चाहतें मेरी सभी हैं,
-बिन तेरे हो सिर्फ ख्वाब सी।....</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="tumhara-chitra">
-                <h2>तुम्हारा चित्र</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">मैंने तुम्हारा चित्र बनाने को सोचा,
-मैं और चित्र!
-हँसी की बात है न?</div>
-<div class="stanza">बस यूँ ही बनाने लगा,
-जिसे मैंने बहुत पहले चुराई थी।</div>
-<div class="stanza">विश्वास नहीं करोगे,
-मैंने उसे एक भी बार नहीं मिटाया
-और कुछ ही देर में,
-एक बहुत ही सुंदर मुखड़ा बना दिया।</div>
-<div class="stanza">मुझे बहुत आश्चर्य हुआ
-क्योंकि मैंने एक चेहरा बनाया था!
-चाँद से भी सुंदर
-नहीं, उसकी उपमा चाँद से भी नहीं हो सकती है
-क्योंकि
-वह चित्र, मेरे दिल का उदगार था।
-पता नहीं कैसे,</div>
-<div class="stanza">स्वयं बन गया वह,
-मैं सिर्फ पेंसिल घुमाता रहा।
-शायद इसलिए कि,
-तुम मुझसे बहुत दूर हो;..</div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="deep-hoon">
-                <h2>दीप हूँ, जलता रहूँगा</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza">जीवन पथ पर सदा,
-मैं अनवरत चलता रहूँगा,
-<span class="refrain">दीप हूँ, जलता रहूँगा।</span></div>
-<div class="stanza">है कर्म मेरा अनवरत ज्योति दिखाना,
-आँधियों का काम है मुझको बुझाना।
-किंतु उजियारों की खातिर,
-आँधी में पलता रहूँगा।
-<span class="refrain">दीप हूँ जलता रहूँगा।</span></div>
-<div class="stanza">मंजिलों की राह में,
-बाधायें लाखों आती हैं।
-पर पर्वतों से बार-बार,
-नदियाँ सदा टकराती हैं।</div>
-<div class="stanza">इक सरिता की चोट से,
-बालू अचल हो जाता है।
-उस बार-बार प्रहार से,
-राह स्वयं बन जाता है।</div>
-<div class="stanza">उस नदी की ही तरह,
-मैं तुंग से लड़ता रहूँगा।
-<span class="refrain">दीप हूँ, जलता रहूँगा।</span></div>
-<div class="stanza">वीरान सा उपवन में जब,
-जन्म मुकुल का होता है।
-बढ़ता है कोई तो, कोई
-मुरझा कर सोता है।</div>
-<div class="stanza">पर लड़ता है जो कष्टों से,
-जीवन वही हाँ! पाता है।
-खुशबू उसी को मिलती है,
-हाँ! फूल वही कहलाता है।</div>
-<div class="stanza">उस कली की ही तरह मैं,
-टूट के खिलता रहूँगा।
-<span class="refrain">दीप हूँ, जलता रहूँगा।</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
-            <div class="poem" id="uchchhwas">
-                <h2>उच्छ्वास</h2>
-                <hr class="poem-divider">
-                <div class="poem-body">
-<div class="stanza"><span class="refrain">आज साँसों का समर्पण!!</span></div>
-<div class="stanza">आखिरी पत्ते बचे जो,
-आज सूखे से पड़े हैं,
-तेरी आँधी में करूँ मैं,
-खुद का अंतिम भाग तर्पण!</div>
-<div class="stanza"><span class="refrain">आज साँसों का समर्पण!!</span></div>
-<div class="stanza">आखिरी उच्छ्वास है ये,
-जो बचा है पास मेरे,
-अब न ज्यादा सह सकूँगा,
-पग में तेरे प्राण अर्पण!!</div>
-<div class="stanza"><span class="refrain">आज साँसों का समर्पण!!</span></div>
-                </div>
-                <a class="top-link" href="#top">&uarr; अनुक्रम</a>
-            </div>
+            </a>
         </div>
     </div>
 
